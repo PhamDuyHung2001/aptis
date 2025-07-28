@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>APTIS Listening - Test</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            max-width: 700px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+        }
+        .question-block {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        select {
+            margin-left: 10px;
+            padding: 5px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .wrong {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>APTIS Listening - Test <span id="testNumber">1</span>/<span id="totalTest">3</span></h2>
+
+    <div id="questionContainer"></div>
+
+    <div class="buttons">
+        <button onclick="prevTest()">Quay lai</button>
+        <button onclick="checkAnswers()">Kiem tra dap an</button>
+        <button onclick="nextTest()">Cau hoi tiep theo</button>
+    </div>
+
+    <div class="status" id="resultText"></div>
+</div>
+
+<script>
+    const originalTests = [
+        [
+            { text: "Technology helps make education more accessible", answer: "B" },
+            { text: "Social interaction is important", answer: "W" },
+            { text: "The diverse curriculum is not an advantage", answer: "M" },
+            { text: "University competition should be encouraged", answer: "W" }
+        ],
+        [
+            { text: "There is too much information on the internet", answer: "B" },
+            { text: "Using internet requires skills", answer: "W" },
+            { text: "The internet is changing the way we think", answer: "W" },
+            { text: "Internet has made people less patient", answer: "B" }
+        ],
+        [
+            { text: "Singers play a good role for young people", answer: "W" },
+            { text: "Taste in music is a highly personal thing", answer: "B" },
+            { text: "Music is a universal language", answer: "M" },
+            { text: "Music can manipulate people's feelings", answer: "B" }
+        ],
+        [
+            { text: "People share the very similar ideas about beauty", answer: "M" },
+            { text: "Views of beauty change over time", answer: "W" },
+            { text: "Beauty can be found in unlikely places", answer: "B" },
+            { text: "Traditional ideas of beauty are going to change", answer: "W" }
+        ],
+        [
+            { text: "Auditions are the most important of casting", answer: "W" },
+            { text: "Actors respond best to a strong script", answer: "M" },
+            { text: "Theatre acting and movie acting require different skills", answer: "B" },
+            { text: "Actors need to be praised", answer: "B" }
+        ],
+        [
+            { text: "Art is only suitable for the privileged few", answer: "M" },
+            { text: "The government should invest more in arts", answer: "W" },
+            { text: "Children should be exposed to art early", answer: "B" },
+            { text: "In the future, art will become more accessible", answer: "W" }
+        ],
+        [
+            { text: "Living space is more important than farming space", answer: "M" },
+            { text: "Urban farming sites can be visually appealing", answer: "B" },
+            { text: "Urban farming can benefit local economics", answer: "W" },
+            { text: "Urban farming cannot meet food needs", answer: "B" }
+        ],
+        [
+            { text: "Young people are becoming more interested in politics", answer: "B" },
+            { text: "Social media has changed political activism", answer: "M" },
+            { text: "People are better informed about political issues", answer: "W" },
+            { text: "More women are likely to participate in politics", answer: "B" }
+        ],
+        [
+            { text: "Continuity is important when planning a career", answer: "M" },
+            { text: "Job security cannot be guaranteed", answer: "W" },
+            { text: "Job satisfaction is important for motivator", answer: "B" },
+            { text: "Technological improvement is good for the economy", answer: "M" }
+        ],
+        [
+            { text: "Exhibitions should be different and diverse", answer: "M" },
+            { text: "Traditional customs are gradually losing their significance", answer: "B" },
+            { text: "Local festivals will disappear soon in the near future", answer: "W" },
+            { text: "Schools are important to shaping future generations", answer: "W" }
+        ],
+        [
+            { text: "The future generation will fail to cope with new information", answer: "M" },
+            { text: "The information revolution will be good for the economy", answer: "W" },
+            { text: "No computer is superior to the human brain", answer: "W" },
+            { text: "More should be done to protect individual privacy", answer: "B" }
+        ],
+        [
+            { text: "Building design can influence people's behavior", answer: "B" },
+            { text: "Creating a community can take time", answer: "W" },
+            { text: "Work communities and social communities are the same", answer: "M" },
+            { text: "Technology has changed how community forms", answer: "M" }
+        ]
+    ];
+
+    function shuffleArray(array) {
+        return array.map(value => ({ value, sort: Math.random() }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(({ value }) => value);
+    }
+
+    const tests = shuffleArray(originalTests.map(test => shuffleArray(test)));
+    let currentTest = 0;
+
+    function renderTest() {
+        const test = tests[currentTest];
+        const container = document.getElementById("questionContainer");
+        document.getElementById("testNumber").innerText = currentTest + 1;
+        document.getElementById("totalTest").innerText = tests.length;
+        document.getElementById("resultText").innerHTML = "";
+        container.innerHTML = "";
+
+        test.forEach((q, index) => {
+            const block = document.createElement("div");
+            block.className = "question-block";
+            block.innerHTML = `
+                <label>${q.text}
+                    <select id="q${index}">
+                        <option value="">-- Chon --</option>
+                        <option value="M">M (Man)</option>
+                        <option value="W">W (Woman)</option>
+                        <option value="B">B (Both)</option>
+                    </select>
+                </label>
+            `;
+            container.appendChild(block);
+        });
+    }
+
+    function checkAnswers() {
+        const test = tests[currentTest];
+        let resultHTML = "";
+        let allCorrect = true;
+
+        test.forEach((q, index) => {
+            const selected = document.getElementById(`q${index}`).value;
+            if (!selected) {
+                resultHTML += `<div class="wrong">❗ Cau ${index + 1}: Chua chon dap an</div>`;
+                allCorrect = false;
+            } else if (selected === q.answer) {
+                resultHTML += `<div class="correct">✅ Cau ${index + 1}: Dung</div>`;
+            } else {
+                resultHTML += `<div class="wrong">❌ Cau ${index + 1}: Sai (Dung la ${q.answer})</div>`;
+                allCorrect = false;
+            }
+        });
+
+        if (allCorrect) {
+            resultHTML += `<div class="correct">🎉 Tat ca deu dung!</div>`;
+        }
+
+        document.getElementById("resultText").innerHTML = resultHTML;
+    }
+
+    function nextTest() {
+        if (currentTest < tests.length - 1) {
+            currentTest++;
+            renderTest();
+        }
+    }
+
+    function prevTest() {
+        if (currentTest > 0) {
+            currentTest--;
+            renderTest();
+        }
+    }
+
+    renderTest();
+</script>
+</body>
+</html>

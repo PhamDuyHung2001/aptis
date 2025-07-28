@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Luyen thi APTIS - Reading Part 4</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+    }
+    select {
+      width: 100%;
+      padding: 5px;
+      margin-top: 5px;
+    }
+    #result {
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+      text-align: center;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #nav-buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Luyen thi APTIS - Reading Part 4</h1>
+<h2 id="testTitle"></h2>
+
+<div id="quiz"></div>
+
+<div id="nav-buttons">
+  <button onclick="prevTest()">&#8592; Lui</button>
+  <button onclick="checkAnswers()">Kiem tra</button>
+  <button onclick="nextTest()">Tiep &#8594;</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const tests = shuffle([
+    {
+      answers: [
+        "Dicken for our time",
+        "Difficulties for modern readers",
+        "Keep the reader guessing",
+        "The influence of the media",
+        "Dicken’s early success",
+        "Trying to protect his property",
+        "Bring the books to life"
+      ]
+    },
+    {
+      answers: [
+        "Factors contributing to inactivity",
+        "The situation has the potential of being worst",
+        "The success of a simple idea",
+        "The wider effects of regular activity",
+        "Ways in which environment can influence behaviour",
+        "A design for exercise and for study",
+        "Achieving the right balance"
+      ]
+    },
+    {
+      answers: [
+        "The custom of coffee drinking begins to spread",
+        "Coffee encourages the art of conversation",
+        "A habit that has become a big economy",
+        "Problems of coffee economy",
+        "A remedy of unjust revenue distribution",
+        "Health risks versus health benefits debate",
+        "The ancient origin of coffee"
+      ]
+    },
+    {
+      answers: [
+        "Making things last longer",
+        "A temporary experiment",
+        "The reason of secrecy",
+        "Still relevant to our times",
+        "The difficulty of being generous",
+        "Reason to reach a compromise",
+        "Important lessons for all of us"
+      ]
+    },
+    {
+      answers: [
+        "The easiest way to travel",
+        "Result of a lucky escape",
+        "Origins of what the winner receives",
+        "A need for change",
+        "Earning a reputation",
+        "Generations of champions",
+        "Not in it for the money"
+      ]
+    },
+    {
+      answers: [
+        "An alternative history of settlement",
+        "Natural barrier to resettlement",
+        "Technology helps uncover the ocean’s secret",
+        "A Journey made by stages",
+        "A new evidence that leads to speculation",
+        "Lack of knowledge and skills",
+        "Determination of the explorers through the ages"
+      ]
+    },
+    {
+      answers: [
+        "The origins of chinese food",
+        "The influence of philosophy",
+        "Regional variations",
+        "Cooking methods",
+        "The style of eating",
+        "Changes in the Chinese diets",
+        "Effects of a changing diet"
+      ]
+    },
+    {
+      answers: [
+        "Who is in charge?",
+        "First step on the ice",
+        "Where is the end of the Earth?",
+        "Hidden geography",
+        "Race to the pole",
+        "Less effort needed",
+        "Why is it so cold?"
+      ]
+    },
+    {
+      answers: [
+        "Types of Vegetarian",
+        "Various explanations",
+        "Possible to happen",
+        "Farming Factory – it is a harmful thing",
+        "Respect the life",
+        "Health gets better with diet",
+        "Our responsibilities for global"
+      ]
+    },
+    {
+      answers: [
+        "A physically demanding activity",
+        "A good way to boost your memory",
+        "A great opportunity to broaden your social circle",
+        "A way to learn discipline and the importance of routine",
+        "A creative outlet for expressing emotions",
+        "Enhanced sensitivity to other people's feelings",
+        "Develop a greater sense of well-being"
+      ]
+    },
+    {
+      answers: [
+        "The economy during the Golden Age",
+        "Coming into fashion",
+        "An object of trade",
+        "Different types of tulip",
+        "Trade mechanics",
+        "Trade across Europe",
+        "An Unexpected turn of events"
+      ]
+    },
+    {
+      answers: [
+        "Symbol of privilege and wealth",
+        "Opening the door for everyone",
+        "Away from amusement towards instruction",
+        "Away from enclosure towards greater freedom",
+        "A different set of values",
+        "A new mission of conversation",
+        "A modern day alternative"
+      ]
+    },
+    {
+      answers: [
+        "A Financial Viable Solution",
+        "The price of convenience is high",
+        "The importance of planning in advance",
+        "The impact of losing freedom",
+        "The benefits of living less",
+        "The challenges tha come with a new perspective",
+        "Competivive business"
+      ]
+    }
+  ]);
+
+  let currentTest = 0;
+  let shuffledOptions = [];
+
+  function shuffle(array) {
+    let copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function renderTest() {
+    const test = tests[currentTest];
+    document.getElementById('testTitle').innerText = `De so ${currentTest + 1}`;
+    shuffledOptions = shuffle(test.answers);
+    const quizContainer = document.getElementById('quiz');
+    quizContainer.innerHTML = '';
+    for (let i = 0; i < test.answers.length; i++) {
+      const div = document.createElement('div');
+      div.className = 'question';
+      div.innerHTML = `
+        <label>Cau ${i + 1}:</label>
+        <select id="select${i}">
+          <option value="">-- Chon dap an --</option>
+          ${shuffledOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+        </select>
+      `;
+      quizContainer.appendChild(div);
+    }
+    document.getElementById('result').innerText = '';
+  }
+
+  function checkAnswers() {
+    const test = tests[currentTest];
+    let correct = 0;
+    for (let i = 0; i < test.answers.length; i++) {
+      const selected = document.getElementById(`select${i}`).value;
+      if (selected === test.answers[i]) {
+        correct++;
+      }
+    }
+    document.getElementById('result').innerText = `Ban da dung ${correct}/${test.answers.length} cau.`;
+  }
+
+  function nextTest() {
+    currentTest = (currentTest + 1) % tests.length;
+    renderTest();
+  }
+
+  function prevTest() {
+    currentTest = (currentTest - 1 + tests.length) % tests.length;
+    renderTest();
+  }
+
+  renderTest();
+</script>
+
+</body>
+</html>

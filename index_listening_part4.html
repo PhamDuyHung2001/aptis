@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Part 4 - Aptis Listening</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f4f4f4;
+        }
+        .question-block {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        h2 {
+            color: #333;
+        }
+        .statement {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2d89ef;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1b5cb8;
+        }
+        select {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        .navigation {
+            margin-bottom: 20px;
+        }
+        .current-count {
+            font-size: 18px;
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Part 4 - Aptis Listening Practice</h1>
+
+    <div class="navigation">
+        <button onclick="prevTest()">⬅ Trước</button>
+        <button onclick="nextTest()">Sau ➡</button>
+        <span class="current-count" id="counter">1/1</span>
+        <label for="voiceSelect">Chọn giọng đọc: </label>
+        <select id="voiceSelect"></select>
+    </div>
+
+    <div class="question-block" id="test-container">
+        <!-- Nội dung test sẽ được hiển thị tại đây -->
+    </div>
+
+    <script>
+        const testData = [
+            {
+                topic16: "Script Production",
+                content16A: "The characters' background are not adequately explored.",
+                content16B: "The new industry demands are negatively influencing script production.",
+                topic17: "A Regional Development Plan",
+                content17A: "It does not do enough to promote alternatives to driving.",
+                content17B: "The plan is not making efficient use of existing land."
+            },
+            {
+                topic16: "Sport",
+                content16A: "They have a harmful effect.",
+                content16B: "It helps balance student’s lives.",
+                topic17: "Work from Home",
+                content17A: "It wasn't as good as she had expected.",
+                content17B: "It depends on your situation and personality."
+            },
+            {
+                "topic16": "CCTV (Security cameras)",
+                "content16A": "Employees probably worry unnecessarily.",
+                "content16B": "People should feel reassured.",
+                "topic17": "Writer's Block",
+                "content17A": "Create dedicated periods.",
+                "content17B": "Refusing to seek the advice of other people."
+            },
+            {
+                "topic16": "Television Series",
+                "content16A": "It has the consistent quality throughout.",
+                "content16B": "Viewer habits influence the way that series are made.",
+                "topic17": "Advertising and Sponsoring",
+                "content17A": "It can help reach new customers.",
+                "content17B": "They can generate negative publicity for the sport."
+            },
+            {
+                "topic16": "Making Plans",
+                "content16A": "They help you make decisions.",
+                "content16B": "It requires you to set yourself certain limits.",
+                "topic17": "A Promotion Campaign for a Product",
+                "content17A": "It is making exaggerated claims.",
+                "content17B": "It costs too much to make to be profitable."
+            },
+            {
+                "topic16": "A New Guide",
+                "content16A": "It creates a sense of adventure.",
+                "content16B": "It is only suitable for a particular generation.",
+                "topic17": "Life After University",
+                "content17A": "Be flexible and open minded.",
+                "content17B": "They are becoming more competitive."
+            },
+            {
+                "topic16": "A New Restaurant",
+                "content16A": "Standard of Service wasn’t good.",
+                "content16B": "They need to make the customers feel valued and welcome.",
+                "topic17": "New Novel",
+                "content17A": "They are difficult to relate to.",
+                "content17B": "It lacks originality."
+            },
+            {
+                "topic16": "A New Restaurant",
+                "content16A": "Standard of Service wasn’t good.",
+                "content16B": "They need to make the customers feel valued and welcome.",
+                "topic17": "New Novel",
+                "content17A": "It is different from his earlier works.",
+                "content17B": "He should listen to critics before writing his next work."
+            },
+            {
+                "topic16": "A Research into Happiness",
+                "content16A": "It has not been accurately reported by the media.",
+                "content16B": "The research is unlikely to find a conclusive answer.",
+                "topic17": "Criticism of the New Novel",
+                "content17A": "The characters were interesting.",
+                "content17B": "It will establish the author's popularity."
+            },
+            {
+                "topic16": "Professionalism at Work",
+                "content16A": "Maintain a positive attitude.",
+                "content16B": "Change its definition.",
+                "topic17": "A Musician’s Life",
+                "content17A": "He will probably retire from singing.",
+                "content17B": "He could have been more successful."
+            },
+            {
+                "topic16": "A Book about the Life of a Scientist",
+                "content16A": "It uses simple language to describe complex ideas.",
+                "content16B": "It is similar to the previous book about the scientist.",
+                "topic17": "A Break from Studying",
+                "content17A": "He wasn’t ready to start higher education.",
+                "content17B": "To be more independent."
+            },
+            {
+                "topic16": "A Promotion Campaign for a Product",
+                "content16A": "It is making exaggerated claims.",
+                "content16B": "It costs too much to make to be profitable.",
+                "topic17": "Managing Financial Spending",
+                "content17A": "Monitor your spending on a weekly basis.",
+                "content17B": "Seek advice from someone who has experience."
+            },
+            {
+                "topic16": "The Importance of Sleep",
+                "content16A": "Blocking out noise and light is a key.",
+                "content16B": "People can’t always recognize the symptoms of tiredness.",
+                "topic17": "Two Famous Writers",
+                "content17A": "They both make references to each other in their work.",
+                "content17B": "The meaning of their work is not always easily identified."
+            }
+
+
+
+
+
+            // => Bạn có thể thêm các test tiếp theo ở đây (tối đa 12 test)
+        ];
+
+        let currentIndex = 0;
+        const testContainer = document.getElementById("test-container");
+        const counter = document.getElementById("counter");
+
+        const synth = window.speechSynthesis;
+        let voices = [];
+        const voiceSelect = document.getElementById("voiceSelect");
+
+        function populateVoiceList() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            voices.forEach((voice, i) => {
+                let option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = i;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function speak(text) {
+            if (synth.speaking) synth.cancel();
+            const utterThis = new SpeechSynthesisUtterance(text);
+            const selectedVoiceIndex = voiceSelect.value;
+            if (voices[selectedVoiceIndex]) {
+                utterThis.voice = voices[selectedVoiceIndex];
+            }
+            synth.speak(utterThis);
+        }
+
+        function stopSpeech() {
+            if (synth.speaking) synth.cancel();
+        }
+
+        function renderTest(index) {
+            const test = testData[index];
+            counter.textContent = `${index + 1}/${testData.length}`;
+
+            testContainer.innerHTML = `
+                <h2>16. Topic: ${test.topic16}</h2>
+                <div class="statement">
+                    <strong>16A:</strong> ${test.content16A}
+                    <div class="controls">
+                        <button onclick="speak('${test.content16A}')">🔊 Read</button>
+                        <button onclick="stopSpeech()">⏹ Stop</button>
+                    </div>
+                </div>
+                <div class="statement">
+                    <strong>16B:</strong> ${test.content16B}
+                    <div class="controls">
+                        <button onclick="speak('${test.content16B}')">🔊 Read</button>
+                        <button onclick="stopSpeech()">⏹ Stop</button>
+                    </div>
+                </div>
+
+                <h2>17. Topic: ${test.topic17}</h2>
+                <div class="statement">
+                    <strong>17A:</strong> ${test.content17A}
+                    <div class="controls">
+                        <button onclick="speak('${test.content17A}')">🔊 Read</button>
+                        <button onclick="stopSpeech()">⏹ Stop</button>
+                    </div>
+                </div>
+                <div class="statement">
+                    <strong>17B:</strong> ${test.content17B}
+                    <div class="controls">
+                        <button onclick="speak('${test.content17B}')">🔊 Read</button>
+                        <button onclick="stopSpeech()">⏹ Stop</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function prevTest() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderTest(currentIndex);
+            }
+        }
+
+        function nextTest() {
+            if (currentIndex < testData.length - 1) {
+                currentIndex++;
+                renderTest(currentIndex);
+            }
+        }
+
+        // Initial render
+        renderTest(currentIndex);
+    </script>
+</body>
+</html>

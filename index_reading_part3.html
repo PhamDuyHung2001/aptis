@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aptis Reading Part 3 - 13 Questions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f0f0f0;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background-color: white;
+      padding: 30px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    }
+    .passage {
+      margin-bottom: 20px;
+    }
+    .question-line {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    select {
+      padding: 5px;
+    }
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .submit-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+    .feedback {
+      margin-left: 10px;
+    }
+    .correct { color: green; }
+    .wrong { color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Aptis Reading - Part 3</h1>
+    <div id="question-counter" style="text-align:right; margin-bottom: 10px;"></div>
+    <div id="question-container"></div>
+    <div class="navigation">
+      <button onclick="prevQuestion()" class="submit-btn">← Lùi</button>
+      <button onclick="checkAnswer()" class="submit-btn">Kiểm tra đáp án</button>
+      <button onclick="nextQuestion()" class="submit-btn">Tiếp →</button>
+    </div>
+  </div>
+
+  <script>
+    // Dữ liệu câu hỏi gốc
+    const originalQuestions = [
+      {
+        passages: {
+          A: "I have a dream that I work as a tour guide. So I understand that I will have to fly to other countries. In my personal opinion, airplanes are currently too cheap compared to the damage they cause to the environment, so I believe we should add taxes to airline ticket prices to make people choose to use other means of transport before they think about flying. I believe that people are also very happy when they can contribute to protecting the environment.",
+          B: "My family and siblings live quite far from me. So I often have to fly to visit them every month when I have time. We really appreciate the time we spend together and we are happy to be able to meet each other and share our new story. I know that traveling by plane too much is not good for the environment so I often shop online or go to work by bike instead of going by car or I reuse plastic bags and paper bags. In addition, I sometimes volunteer to clean up trash in the neighborhood.",
+          C: "I was a businessman so I had to fly many times a week. I had to go to other countries to be able to sign wine trading contracts with them. I felt very tired every time I have to fly. Now, my sister and I, whenever we have free time, take the train together and we enjoy that time very much because I can travel while sightseeing and relax without any stress.",
+          D: "If I have to go somewhere I will choose other means of public transport, not the plane. Every time I go on a plane I feel extremely tired and I just hope time passes quickly so I can get off that plane. However, due to the specific nature of my job, I have to film in many different locations, so sometimes I cannot avoid having to take this public transportation."
+        },
+        statements: [
+          { text: "Suggest making flights more expensive", answer: "A" },
+          { text: "Want to work in other countries", answer: "A" },
+          { text: "Visit relatives regularly", answer: "B" },
+          { text: "Try to protect the environment", answer: "B" },
+          { text: "Like relaxing while they travel", answer: "C" },
+          { text: "Find flying tiring", answer: "D" },
+          { text: "Need to fly for their work", answer: "D" }
+        ]
+      },
+      {
+        passages: {
+          A: "This is my first time coming to this restaurant. The food is very cheap but the quality is excellent. I was very surprised with the starter because its menu is very diverse. But there is one thing that I want the restaurant to improve. The restaurant band played live music but it was very far away, so the sound was very low and it didn't make the meal atmosphere lively. Next time turn the music louder, please!",
+          B: "This is a very famous restaurant that I saw in the newspaper. Sadly, I arrived later than the rest of the party, so I didn't get to order dinner. However, I ordered orange juice and mango juice and they were both delicious. What about the surroundings? Lively music along with fashionable and appropriate decor makes me feel very comfortable.",
+          C: "I'm not sure if I will return to this restaurant. I think the staff was arguing when I got there, because the atmosphere here was not very comfortable. As for the food, I think there's nothing to write about. I ordered fish and chips, it wasn't bad, but it wasn't good either. But many people say that the food here is fabulous. So, I think I'm an exception",
+          D: "I don't understand why this restaurant is so famous. When I arrived and saw a menu with lots of different dishes, I saw this as a bad sign. Furthermore, the menu with traditional dishes contrasting with the modern decoration style made me feel very confused and strange. The waiters here were also not friendly. This was one of my worst experiences eating at a restaurant."
+        },
+        statements: [
+          { text: "was impressed by the range of appetizers / thought the music was too quiet", answer: "A" },
+          { text: "didn't eat anything at the restaurant / enjoyed the atmosphere", answer: "B" },
+          { text: "thought his bad experience was probably unusual / the food was of average quality", answer: "C" },
+          { text: "will definitely not return to the restaurant", answer: "D" },
+          { text: "found the decor modern but inappropriate", answer: "D" },
+          { text: "thought the food was cheap but great", answer: "A" },
+          { text: "felt comfortable despite not eating dinner", answer: "B" }
+        ]
+      },
+      {
+        passages: {
+          A: "My wife often complains about not having time to read, and I say we have to make our own time. So, I often calculate my free time on my phone. so I can know in advance whether I should bring a book to read on the train. My wife often laughs at me for doing so, but I don't mind, as long as I can finish reading so many books.",
+          B: "I used to struggle very much to finish reading a book that we were expected to read. However, now that I read for my own pleasure, I don't mind too much. I usually don't limit myself to reading one at a time. There are so many titles I can choose from that get me excited. I have a list of books that I want to read in the future.",
+          C: "I often keep a book on the bedside table to read before going to bed. The problem is, I get tired after reading only half of a page, and I fall asleep. So, I've been reading that one book for half a year now and have only read chapter 2. However, when I read factual books, I find it very interesting and it keeps me awake for hours.",
+          D: "My job requires reading a lot of books. These books include a lot of facts and figures and they are very boring. When I have free time, I usually want to read light books, like mystery novels or comedy. I often read on the train to work. I have a young child, so when I come home I almost don't have time to read. Therefore, I have to read books when traveling by train. So, a book can last me 1 week."
+        },
+        statements: [
+          { text: "plans their reading schedule", answer: "A" },
+          { text: "reads more than another family member", answer: "A" },
+          { text: "reads many books at once", answer: "B" },
+          { text: "wants to read a lot of books", answer: "B" },
+          { text: "is having difficulty in finishing a book", answer: "C" },
+          { text: "thinks that factual books are boring", answer: "D" },
+          { text: "has limited time to read books", answer: "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "When I first came to this city, I felt very scared because this city is very big. The city has many parts and the shopping part is very far from the green part. However, we already had the bus route and we signed up to take the bus for a full day. Buses are very cheap and very convenient. I feel very lucky to not have to put pressure on my sore feet.",
+          "B": "I don't like big cities and rarely go out to cities. But I go to the StevenSon city very often. I go there about five to seven times a year. There is an area outside the city. In that area, there are many things that I need. There is a lot of water, a natural area, a small forest and a special camping area. I really like coming to this place to rest. It also has a great coffee serving area for visitors.",
+          "C": "I went to this city last summer and really liked the atmosphere of this city. The reason I like the atmosphere here is because it has a lot of public performances. These performances often take place in front of department stores. So this prevents me from shopping inside those stores. I was very surprised when I came home with an empty bag and I didn't buy anything.",
+          "D": "When I go out, I only care about two things: good food and a good play. I especially liked the lunch I had in this city, it was delicious and I really want to come back here next time. However, I guess it's a bit expensive and I have to walk a long way to get there. However, it didn't matter because I had a wonderful day."
+        },
+        "statements": [
+          { "text": "thought public transport system was good", "answer": "A" },
+          { "text": "walking too much causes a problem", "answer": "A" },
+          { "text": "like the natural resort here", "answer": "B" },
+          { "text": "visit one part of the city", "answer": "B" },
+          { "text": "like the public theatre that the city puts on", "answer": "C" },
+          { "text": "usually spend a lot of money on shopping", "answer": "C" },
+          { "text": "pay a lot for their meal", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "I see too many people who do not arrange a good time to travel to work, they often arrive at work late. I always think in advance about what time I will get to work tomorrow and what means of transport I will use.",
+          "B": "Buses are often full of people, especially during rush hour. This makes me very uncomfortable when I have to travel to work by bus. The public transportation improvement plan proposed by the city is very reasonable and it will improve the above situation a lot.",
+          "C": "In my opinion, the bus is very clean and comfortable to travel. I find it has a lot of space for everyone, and the bus system is also very large. Therefore, I think improving the public transport system is unnecessary, while the old system is still good.",
+          "D": "Building a new public transportation system will be very costly. And we all know it's at the expense of residents. I think we should use that money for something more beneficial, which is building more hospitals. Hospitals in this living area are very few."
+        },
+        "statements": [
+          { "text": "people should plan their journeys better", "answer": "A" },
+          { "text": "the bus is too busy", "answer": "B" },
+          { "text": "the new station will improve train travel", "answer": "B" },
+          { "text": "the bus service is good", "answer": "C" },
+          { "text": "transport system doesn't need improving", "answer": "C" },
+          { "text": "better medical facilities are needed", "answer": "D" },
+          { "text": "the new station will cost too much to build", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "I know a little about famous painters and their works. But I don't like going to art exhibitions unless my friend invites me. I like extracurricular activities more, painting exhibitions seem too quiet to me. I like to draw, and I have been drawing ever since I can remember. My forte in drawing is animals, especially big and ferocious animals.",
+          "B": "I find going to see paintings similar to reading books. You must look and read before discussing. When I go to exhibitions with my friends, they often talk before seeing the painting, and what they talk about isn't even about the painting, that's annoy me.",
+          "C": "I find polite art very fascinating. I often go to talks about arts and I have gone to many foreign art exhibitions and artists' houses. It's great to see their works and where they worked.",
+          "D": "My parents often took me to see art exhibitions when I was a child. and I think that habit remains. Currently, I often take my children to the exhibition, which is a lovely activity for me. I often ask my children to do other activities while looking at pictures, for example, think of a story for that picture, so they don't get bored."
+        },
+        "statements": [
+          { "text": "has some artistic skills", "answer": "A" },
+          { "text": "seeing exhibitions is a boring activity", "answer": "A" },
+          { "text": "prefers seeing exhibitions by themselves", "answer": "B" },
+          { "text": "visitors should focus on the art", "answer": "B" },
+          { "text": "has a good knowledge of art", "answer": "C" },
+          { "text": "prefers going to art exhibitions with other people", "answer": "D" },
+          { "text": "has been going to art exhibitions all their life", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "I feel very lucky to have this park here. My family and I often go to the park because of the natural landscape here. It's different from the city, which is very busy and full of dust. Unfortunately, I am away this weekend so I cannot help with the cleaning. However, I know my brother and his friends will be very interested in this cleanup so I will ask them if they can help.",
+          "B": "I'm a very busy person and I have to spend this weekend with my family because I only have the weekend as free time. I think young people who don't have families should help. Besides, students and schools also have days off on weekends. I think this volunteering will be very helpful for students' future careers.",
+          "C": "I think this volunteering is a good idea but it doesn't have a long-term vision. When volunteers clean up the park, it will be clean, but it will become busy again after about a month when tourist season arrives. I think we should clean this park regularly about once a month. Surrounding areas such as the lake and local forest should also be cleaned up. We should also have signs telling visitors to clean up their trash. I am very upset when I see a lot of trash on both sides of the road.",
+          "D": "My family and I often spend time at the park. My children love going to the park and they find the park a very interesting place to visit. My son has a dream of becoming a biologist so I think cleaning up this park will be very helpful for my son. I think we should pique children's interest in cleaning. They will be more willing to volunteer and help others."
+        },
+        "statements": [
+          { "text": "the park is a beautiful place to relax", "answer": "A" },
+          { "text": "ask for others to help", "answer": "A" },
+          { "text": "can't clean the park because of their busy work", "answer": "B" },
+          { "text": "volunteering will help with future employment", "answer": "B" },
+          { "text": "local areas need cleaning", "answer": "C" },
+          { "text": "the cleaning needs to be done regularly", "answer": "C" },
+          { "text": "volunteering is important for students", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "I have ever experienced. However, after that trip, I had a strong passion for walking. So now, every day I walk as a hobby, and it also helps my health a lot. I'm old so I'm no longer interested in traveling to far away places. Instead, I want to lie on a comfortable sofa and watch my favorite TV show.",
+          "B": "When I travel somewhere, I often ask for bus routes to famous tourist destinations so that I can get to those places as quickly as possible and avoid wasting time going around. Famous tourist destinations are the places I want to explore the most when traveling somewhere. I don't understand why many people just like to sit still at the beach when traveling, I find that uninteresting and time-consuming.",
+          "C": "My family and I often plan to travel every time we have a vacation. If the weather is nice then our plans go ahead as usual, if not, we will postpone that vacation. For my family, light wind and warm sunlight are important when we go out. A few of my friends invited me to go climbing, but I'm afraid of heights so I refused them. However, in the future I really want to try mountain climbing once.",
+          "D": "Next month's trip will be the first time I travel to another country. Normally I only travel to famous local places or in my country. These places are beautiful but I'm so excited to travel to a foreign place once in my life."
+        },
+        "statements": [
+          { "text": "prefer to stay at home", "answer": "A" },
+          { "text": "like going walking", "answer": "A" },
+          { "text": "like seeing tourist attractions", "answer": "B" },
+          { "text": "going to the beach is boring", "answer": "B" },
+          { "text": "holiday requires good weather", "answer": "C" },
+          { "text": "want to go mountaineering trip", "answer": "C" },
+          { "text": "have never been abroad", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "Exercising with friends is a fantastic idea, don't you think? It adds a fun element to the workout routine. It's important to fuel our bodies properly, though. After a good workout, I always make sure to have a nutritious meal to replenish energy and support muscle recovery.",
+          "B": "Establishing a consistent workout routine has really helped me stay on track with my fitness goals. It's amazing how much more I can accomplish when I have a structured plan in place. Plus, it keeps me accountable and ensures I make time for physical activity every day.",
+          "C": "Age is just a number when it comes to exercise. Whether you're young or old, staying active is crucial for maintaining overall health and vitality. While competitions can be motivating for some, they're not necessarily suitable for everyone. It's important to find activities that are enjoyable and sustainable for each individual.",
+          "D": "Experiencing pain during exercise isn't necessary and it's a sign that something may be wrong. It's important to listen to our bodies and seek expert advice when needed, whether it's from a trainer, physical therapist, or medical professional. Taking care of ourselves properly ensures we can continue to enjoy physical activity without risking injury."
+        },
+        "statements": [
+          { "text": "work out with friends is a good idea", "answer": "A" },
+          { "text": "a proper meal is important", "answer": "A" },
+          { "text": "a routine can help us do more sport", "answer": "B" },
+          { "text": "exercise is for both the young and the elderly", "answer": "C" },
+          { "text": "competitions are not useful for everybody", "answer": "C" },
+          { "text": "experience pain is not necessary", "answer": "D" },
+          { "text": "at times we seek expert advice", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "Ali": "I like traveling to the beach. I think I have to walk quite a distance from the hotel to the beach so I think I have to bring boots. however, when I opened the suitcase I didn't see any boots. But I still completed the trip and visited many beautiful beaches. One great thing is that the beaches are in remote areas so there are very few tourists. However, it also makes finding food and drinks more difficult.",
+          "Bruno": "As an architect, I have always been interested in how buildings are constructed. So when I travel, I never spend time lying on the beach or buying souvenirs. I will go around the area to see the architecture of the houses. I chose to go around by taxi, it was great. However, it cost me a lot because I traveled alone and had no one to share the costs with. But for me this was still a great experience because I got to see many old houses.",
+          "Carla": "The sharp bends of the island made me abandon the idea of renting a car, because it was very dangerous. I decided to take the bus, it was also much cheaper. However, the bus routes are quite few and there are many time constraints. We toured the neighborhoods on foot. I loved this experience because I could see many beautiful sights.",
+          "Deniz": "There's a lot of food here and I spend most of my time eating. I can't recommend any of the dishes because they are all very impressive. If you want to cook for yourself, you will have to take the bus to the market. Don't forget to visit the street market because they sell a lot of cool local products. I have a lot of good bargains there."
+        },
+        "statements": [
+          { "text": "forgot to bring something", "answer": "A" },
+          { "text": "liked to be alone", "answer": "A" },
+          { "text": "spent a lot of money on transport", "answer": "B" },
+          { "text": "thought public transport could be improved", "answer": "C" },
+          { "text": "liked to walk", "answer": "C" },
+          { "text": "loved eating food here", "answer": "D" },
+          { "text": "liked buying things on the island", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "I know I have to spend time studying but there are so many great TV shows. especially horror tv shows, once you watch it, you will be glued to it and can't stop watching. Besides, these TV shows often last for many weeks.",
+          "B": "I often spend time watching news on TV in the evening when I'm free. In the past, I often watched the soccer team I like on TV, but they often lost, so I gave up watching them. Nowadays there are too many reality TV shows being shown on TV. Every time I see these shows, I turn it off and do more interesting things.",
+          "C": "I wasn't good when I was in school because I often spent time watching cartoons on TV. however, I now watch nature documentaries and TV shows about science, history, and business. This helps me expand my knowledge a lot compared to when I was in school.",
+          "D": "My husband usually schedules TV viewing for the weekend, he usually watches football or documentaries. I'm the opposite. I just turn on the TV and it doesn't matter what program it is, because I just need to relax. However, I also want to update news about movies. not just movies, but also songs. I also find reality TV shows very entertaining."
+        },
+        "statements": [
+          { "text": "watch TV instead of studying", "answer": "A" },
+          { "text": "like TV programs which continue over several weeks", "answer": "A" },
+          { "text": "avoid watching reality TV programs", "answer": "B" },
+          { "text": "lost interest in watching football on TV", "answer": "B" },
+          { "text": "get a lot of knowledge by watching TV", "answer": "C" },
+          { "text": "isn't a very selective viewer", "answer": "D" },
+          { "text": "keep up to date on cinema and music", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "Ceci": "When I was a kid, I was often given ready-made or junk food when I was at home, although I don't want to blame my parents. Since then, I try to eat at restaurants as much as possible. The food at the restaurant is not very diverse but for me that is not a problem. What matters to me when going out to eat is who you go with. I often eat with colleagues or close friends when I get off work, it's very fun.",
+          "Ben": "I used to often go to the most fashionable and luxurious restaurants to eat. However, now, I'm back to being a student and my finances won't stretch that far. Therefore, I often cook for myself and watch recipes and cooking methods on the internet. That helps me to be able to focus on my studies without losing concentration.",
+          "Glo": "Going to a restaurant is for the social atmosphere and I am not bothered to eat alone either. What's important to me is the variety of dishes. Therefore, I eat at as many places as possible even though they are a bit pricey. That's why I joined the cooking club, where I can learn many new recipes and also meet many friends.",
+          "Alon": "I don't understand why so many people want to find many different recipes for one dish. I know clearly what I like and I eat exactly that food. My dad is a good cook, he knows what ingredients I don't like to eat, which obviously are a lot. I love being home and eating with my family."
+        },
+        "statements": [
+          { "text": "like to eat with friends", "answer": "A" },
+          { "text": "prefer to eat alone", "answer": "B" },
+          { "text": "need to save money", "answer": "B" },
+          { "text": "like to eat a wide range of dishes", "answer": "C" },
+          { "text": "take a cookery course", "answer": "C" },
+          { "text": "only want to eat a few range of food", "answer": "D" },
+          { "text": "like home cooked food", "answer": "D" }
+        ]
+      },
+      {
+        "passages": {
+          "A": "Originally, the city planners promised money for building a hospital initially. I don't understand why they switched to construct a new station then. This new station won't solve the traffic jams, and it will require the city's budget every year. Therefore, we won't have money left to build a hospital while health should be a priority. I believe it's better to invest in health services instead.",
+          "B": "The new station will be in the residential area, close to the hospital and university. We already have buses for getting around, and even though they might be slow sometimes, that's not a reason for being late. I always go to work on time, and I think everyone should work on their personal schedule. People often blame traffic for being late. but I manage to avoid that.",
+          "C": "I take the train to work every day, and I am tired of the overcrowded trains. I believe investing in a new station is worthwhile, as it could enhance the transportation system and alleviate congestion at the current station. We should consider placing the new station in densely populated residential areas, as this would improve train travel and help reduce crowding.",
+          "D": "The city planners say that investing in a new station may not be necessary. Both the current station and the bus services appear to work well. Although I don't use trains regularly, I have found the service to be satisfactory whenever I do. The existing facilities are adequate, and I don't see a pressing need to spend money on a new station at this time."
+        },
+        "statements": [
+          { "text": "Who thinks that better medical facilities are needed?", "answer": "A" },
+          { "text": "Who thinks that the station will cost too much to build?", "answer": "A" },
+          { "text": "Who thinks that people should plan their journey better?", "answer": "B" },
+          { "text": "Who thinks that the bus is too busy?", "answer": "C" },
+          { "text": "Who thinks that the station will improve train travel?", "answer": "C" },
+          { "text": "Who thinks that the bus has a good service?", "answer": "D" },
+          { "text": "Who thinks that the transport doesn't need to be improved?", "answer": "D" }
+        ]
+      }
+
+
+
+
+
+
+
+
+
+
+
+      // TODO: Thêm các câu khác nếu cần
+    ];
+
+    // Hàm trộn mảng
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    let questions = [...originalQuestions]; // Tạo bản sao để trộn
+    shuffleArray(questions); // Trộn thứ tự câu hỏi
+    let currentIndex = 0;
+
+    function renderQuestion(index) {
+      const container = document.getElementById("question-container");
+      const counter = document.getElementById("question-counter");
+      const q = questions[index];
+
+      counter.textContent = `Câu ${index + 1} / ${questions.length}`;
+      container.innerHTML = "";
+
+      // Hiển thị đoạn văn
+      for (const key in q.passages) {
+        const div = document.createElement("div");
+        div.className = "passage";
+        div.innerHTML = `<strong>Person ${key}:</strong> <p>${q.passages[key]}</p>`;
+        container.appendChild(div);
+      }
+
+      // Trộn statements mỗi lần render
+      const shuffledStatements = [...q.statements];
+      shuffleArray(shuffledStatements);
+      questions[index].shuffledStatements = shuffledStatements;
+
+      shuffledStatements.forEach((stmt, i) => {
+        const line = document.createElement("div");
+        line.className = "question-line";
+        line.innerHTML = `
+          <label>${i + 1}. ${stmt.text}</label>
+          <select id="ans${i}">
+            <option value="">-Select-</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+          <span class="feedback" id="feedback${i}"></span>
+        `;
+        container.appendChild(line);
+      });
+    }
+
+    function checkAnswer() {
+      const q = questions[currentIndex];
+      const shuffledStatements = q.shuffledStatements || q.statements;
+
+      shuffledStatements.forEach((stmt, i) => {
+        const userAns = document.getElementById("ans" + i).value;
+        const feedback = document.getElementById("feedback" + i);
+        if (userAns === stmt.answer) {
+          feedback.textContent = "✓ Correct";
+          feedback.className = "feedback correct";
+        } else {
+          feedback.textContent = `✗ Wrong (Answer: ${stmt.answer})`;
+          feedback.className = "feedback wrong";
+        }
+      });
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion(currentIndex);
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion(currentIndex);
+      }
+    }
+
+    // Khởi tạo câu đầu tiên sau khi đã random
+    renderQuestion(currentIndex);
+  </script>
+</body>
+</html>

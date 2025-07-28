@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aptis Listening - Part 1</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      padding: 40px;
+    }
+    form {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    .question {
+      margin-bottom: 25px;
+    }
+    .question h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      color: #222;
+    }
+    .option {
+      display: block;
+      margin: 6px 0;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      transition: 0.2s;
+      font-size: 17px;
+      cursor: pointer;
+    }
+    .option:hover {
+      background-color: #f0f4ff;
+      border-color: #4460f0;
+    }
+    .option input {
+      transform: scale(1.5);
+      margin-right: 10px;
+    }
+    button {
+      background-color: #4460f0;
+      color: white;
+      padding: 14px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #result {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 18px;
+    }
+    ul {
+      text-align: left;
+      margin: 0 auto;
+      max-width: 600px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Aptis Listening - Part 1</h1>
+
+<form id="quizForm"></form>
+
+<div id="result"></div>
+
+<script>
+  // Danh sach cau hoi
+  const questions = [
+    {
+      id: "q1",
+      text: "How much are the eggs?",
+      options: ["1.25 pound", "1.50 pound", "2 pounds"],
+      answer: "1.50 pound"
+    },
+    {
+      id: "q2",
+      text: "What time does the train leave?",
+      options: ["9.45", "8.45", "9.15"],
+      answer: "9.15"
+    },
+    {
+    id: "q3",
+    text: "How does she go to school?",
+    options: ["She walks", "She drives", "She goes by bus"],
+    answer: "She walks"
+  },
+  {
+    id: "q4",
+    text: "What time is lunch ready?",
+    options: ["1pm", "2pm", "3pm"],
+    answer: "2pm"
+  },
+  {
+    id: "q5",
+    text: "What does she usually do in the evening?",
+    options: ["listen to music", "go for a walk", "go to the coffee shop"],
+    answer: "go for a walk"
+  },
+  {
+    id: "q6",
+    text: "Where will they meet?",
+    options: ["at the university", "at the station", "at the park"],
+    answer: "at the park"
+  },
+  {
+    id: "q7",
+    text: "What does this family do most weekends?",
+    options: ["goes with their friends", "goes bowling", "goes for a walk"],
+    answer: "goes for a walk"
+  },
+  {
+    id: "q8",
+    text: "What day do they meet?",
+    options: ["Tuesday", "Thursday", "Friday"],
+    answer: "Tuesday"
+  },
+  {
+    id: "q9",
+    text: "What career did he choose?",
+    options: ["to work in business", "to be a teacher", "to keep studying"],
+    answer: "to work in business"
+  },
+  {
+    id: "q10",
+    text: "What course did he take?",
+    options: ["Management", "Computer", "Leadership"],
+    answer: "Management"
+  },
+  {
+    id: "q11",
+    text: "How is being a writer different from other jobs?",
+    options: ["She works irregular time", "She does not have a high salary", "She has no fixed workplace"],
+    answer: "She works irregular time"
+  },
+  {
+    id: "q12",
+    text: "Where does she buy food?",
+    options: ["at a local market", "at a convenient store", "at a new shopping centre"],
+    answer: "at a new shopping centre"
+  },
+  {
+    id: "q13",
+    text: "What causes air pollution?",
+    options: ["Fire from the countryside", "Pollutants from private cars", "Smoke from factories"],
+    answer: "Fire from the countryside"
+  }
+    // Them cau hoi moi o day
+  ];
+
+  // Xao tron 1 mang
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Render cau hoi ra giao dien
+  function renderQuestions() {
+    const form = document.getElementById("quizForm");
+    questions.forEach((q, index) => {
+      const shuffled = shuffle([...q.options]);
+      const qDiv = document.createElement("div");
+      qDiv.className = "question";
+
+      qDiv.innerHTML = `
+        <h3>${index + 1}. ${q.text}</h3>
+        ${shuffled.map((opt, i) => `
+          <label class="option">
+            <input type="radio" name="${q.id}" data-value="${opt}"> ${String.fromCharCode(65 + i)}. ${opt}
+          </label>
+        `).join('')}
+      `;
+      form.appendChild(qDiv);
+    });
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerText = "Submit";
+    btn.onclick = submitQuiz;
+    form.appendChild(btn);
+  }
+
+  // Cham diem
+  function submitQuiz() {
+    let score = 0;
+    let wrongList = [];
+
+    questions.forEach(q => {
+      const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+      if (selected) {
+        const val = selected.getAttribute("data-value");
+        if (val === q.answer) {
+          score++;
+        } else {
+          wrongList.push(`${q.text} ❌ Chon "${val}", dung la "${q.answer}"`);
+        }
+      } else {
+        wrongList.push(`${q.text} ❌ Khong chon (dung la "${q.answer}")`);
+      }
+    });
+
+    const result = document.getElementById("result");
+    result.innerHTML = `<h2>✅ Đúng ${score} / ${questions.length} câu</h2>`;
+    if (wrongList.length > 0) {
+      result.innerHTML += "<br><ul>" + wrongList.map(x => `<li>${x}</li>`).join('') + "</ul>";
+    }
+  }
+
+  // Bat dau
+  renderQuestions();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aptis Reading Part 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+        }
+
+        .drop-zone {
+            width: 100%;
+            min-height: 60px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .box {
+            width: 45%;
+            min-height: 300px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .sentence {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #d9edf7;
+            border: 1px solid #bce8f1;
+            border-radius: 5px;
+            cursor: grab;
+        }
+
+        button {
+            margin: 10px 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2 id="testCounter">Câu 1 / 1</h2>
+    <h3 id="topicTitle">Reading Part 2 - Topic: ...</h3>
+    <p>Kéo các câu từ khung bên phải vào các ô trống bên trái theo đúng thứ tự.</p>
+
+    <div class="container">
+        <!-- Khung đáp án -->
+        <div class="box">
+            <h4>Thứ tự đúng:</h4>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+
+        <!-- Khung câu xáo trộn -->
+        <div class="box" id="rightBox" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h4>Các câu xáo trộn:</h4>
+        </div>
+    </div>
+
+    <div>
+        <button onclick="prevQuestion()">⬅ Câu trước</button>
+        <button onclick="retryQuestion()">🔁 Làm lại câu này</button>
+        <button onclick="nextQuestion()">➡ Câu tiếp theo (ngẫu nhiên)</button>
+        <button onclick="checkOrder()">✅ Kiểm tra kết quả</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const questionSets = [
+            {
+                topic: "Tom Harper",
+                sentences: [
+                    "When he was young, he began writing short stories for a magazine",
+                    "he soon wrote regularly for the magazine, but he was not satisfied",
+                    "he almost left the magazine, but then he decided to create some unusual new characters",
+                    "the characters he imagined were one of the most famous in the world",
+                    "this popularity made Tom Harper rich and successful."
+                ]
+            },{
+                topic: "Albert Einstein",
+                sentences: [
+                    "As a child, he moved to a special school because he was so clever.",
+                    "His best friend in his new class was a girl named Lavime.",
+                    "She later became his wife and helped him with his earliest scientific discoveries.",
+                    "These were so advanced that he soon became famous all over the world.",
+                    "Princeton University in the USA offered him a job because he was so famous."
+                ]
+            },
+            {
+                topic: "Delivery Man",
+                sentences: [
+                    "You should arrive at the main office by 6.30am and collect your keys.",
+                    "In the office, you can also collect a map of your route.",
+                    "You must follow the route on the map to deliver packages.",
+                    "When you have completed all deliveries, return to your office.",
+                    "You must return your keys to the office manager after you get back."
+                ]
+            },
+            {
+                topic: "Conference Hall Entry",
+                sentences: [
+                    "When you arrive at the conference hall, give your booking number.",
+                    "A staff member will note this down and give you a welcome pack.",
+                    "Inside you will find a schedule of events and the information of the key speaker.",
+                    "If you would like to attend his talk, it will take place in the main hall at midday.",
+                    "After he finishes, there will be time for questions."
+                ]
+            },
+            {
+                topic: "Submit Coursework",
+                sentences: [
+                    "In your account, press 'open a new window'.",
+                    "When you do this, a new window will open.",
+                    "Simply drag or drop your files.",
+                    "Once you put the files there, press the 'send' button.",
+                    "After you send your course work, you should check your email."
+                ]
+            },
+            {
+                topic: "Traffic Lights",
+                sentences: [
+                    "They were out of order and the traffic moved very slowly.",
+                    "This created long delays in the roads to the city’s business district.",
+                    "As a result of these delays, many people were not able to get to work on time.",
+                    "Fortunately, in the evening, the traffic lights were working again.",
+                    "Therefore, there were not further delays for people going back home."
+                ]
+            },
+            {
+                topic: "Hand in Assignment",
+                sentences: [
+                    "First, it is a good idea to check your report and correct mistakes.",
+                    "When you are sure there are no mistakes left, print out your report.",
+                    "Next, complete a cover sheet with your name and your student number, and attach it to your printed assignment.",
+                    "Bring your assignment with the attached cover sheet to the front desk in the main hall.",
+                    "The staff member will take your report and confirm that everything is complete."
+                ]
+            },
+            {
+                topic: "Car Park",
+                sentences: [
+                    "When you arrive, please take a ticket from a machine at the entrance.",
+                    "This ticket will show the date and the time you arrived.",
+                    "Please display the ticket with this information in the window of your car.",
+                    "Before you leave, please put the ticket on the machine by the gate.",
+                    "The machine will read your information and tell you how much you have to pay."
+                ]
+            },
+            {
+                topic: "Participate in a Race",
+                sentences: [
+                    "On your arrival, please go to the information point at the north gate.",
+                    "Runners must register here at least 30 minutes before the race starts at 9am.",
+                    "To do this, you just need to give us your photo card.",
+                    "A member of staff will give you a numbered armband to wear.",
+                    "Please put this on immediately and join other competitors at the warm-up area."
+                ]
+            },
+            {
+                topic: "Fire Instructions",
+                sentences: [
+                    "When you hear the alarm, leave your bags and belongings at the desk.",
+                    "Next, walk calmly to the doors marked Emergency Exit.",
+                    "Through these doors, there are stairs leading you to the ground floor.",
+                    "When you reach the bottom of these stairs, leave the building through front entrance.",
+                    "Outside, gather on the grass and wait for further instructions."
+                ]
+            },
+            {
+                topic: "Submit Report",
+                sentences: [
+                    "Before you start to write your report, you should look at websites for the information you need.",
+                    "Remember to save links to websites and include them in your report.",
+                    "You should also include a list of books that you use for reference.",
+                    "When you have finished your report, correct all the mistakes.",
+                    "After you make the corrections, send your report by your email."
+                ]
+            },
+            {
+                topic: "Using a Printer",
+                sentences: [
+                    "First, you need to find an appropriate place to put your printer.",
+                    "When your printer is in place, turn it on using the switch.",
+                    "A light comes on at the front of the printer.",
+                    "If the light is green, your printer is ready to use.",
+                    "Before using the printer you need to put papers into it."
+                ]
+            },
+            {
+                topic: "Betty Barr",
+                sentences: [
+                    "She was born in Shanghai in 1933 to an American mother and a father from Scotland.",
+                    "At that time, Shanghai is a city filled with many people from different countries.",
+                    "After she finished her school, she went to Wellesley College, a famous university in USA.",
+                    "She applied for a job in Hong Kong and taught from 1959 to 1972, and learnt Cantonese.",
+                    "In the 1980s, she finally returned to China and still lives with her Shanghai husband, George Wang."
+                ]
+            },
+            {
+                topic: "Key Card",
+                sentences: [
+                    "To enter the building and use the lift, you will need your key card.",
+                    "If you lose this, you will need to see the staff member at the front desk.",
+                    "He or she will ask for your name and your flat number, and then will write these down.",
+                    "You will also need to show your identification card.",
+                    "He or she will make a copy of it and give you a new key card."
+                ]
+            },
+            {
+                topic: "Instructions for New Students",
+                sentences: [
+                    "When you arrive at the university, go to the help desk.",
+                    "A member of staff will ask for your name and your address.",
+                    "He or she will enter your information into the computer and give you an identification card.",
+                    "You can use this card to borrow books from library and access lesson materials online.",
+                    "You will find these in material links on your home page."
+                ]
+            },
+            {
+                topic: "Solve a Problem",
+                sentences: [
+                    "The first step is to find out what you know about the problem.",
+                    "The next one is to form a hypothesis or an idea based on your information.",
+                    "Then, you need to perform experiments to see if these ideas are true or not.",
+                    "You can also compare your results with experiments in the past.",
+                    "In this way, you can add to your knowledge of the subject for future experiments."
+                ]
+            },
+            {
+                topic: "Buying a New House",
+                sentences: [
+                    "The first and most important thing is to choose the location.",
+                    "In order to choose the right place, you need to consider several factors.",
+                    "The most important of these to look at is the price of homes.",
+                    "Other factors to look at are the place of employment, shops and schools.",
+                    "Such requirements of course depend on your personal circumstances."
+                ]
+            },
+            {
+                topic: "Using Public Cycle",
+                sentences: [
+                    "Go to the collection point and click on the screen to choose the bike with your bank card.",
+                    "Choose 'hire the cycle' on the screen and then follow the instructions to receive an unlock code.",
+                    "Enter the code on the lock of the bike and wait for the green lights.",
+                    "When the light comes, you can unlock your bike and start your journey.",
+                    "When you finish your journey, return the bike to any empty collection point."
+                ]
+            },
+            {
+                topic: "Jay Mist",
+                sentences: [
+                    "They left their home country and took Jay to live in the United States.",
+                    "He started study at the school in that country, and in his free time he did some strength exercise.",
+                    "Jay was very good at that and he participated in a bodybuilding competition.",
+                    "At one of these events, an actor agent saw him and gave him a starring role.",
+                    "It was a major action movie and he gained famous from that film."
+                ]
+            },
+            {
+                topic: "Planting Potatoes",
+                sentences: [
+                    "All you need is some earth, an old potato and a big spot.",
+                    "An old potato will have little roots, will be a little green, and won't be good for eating.",
+                    "This colour means it is perfect for growing, you should put some earth in the pot and dig it deep down.",
+                    "When you've done this, you should water it everyday and place it in a sunny spot.",
+                    "With this care, you should see a potato plant growing after couples of weeks."
+                ]
+            },
+            {
+                topic: "Animal Hospital Visit",
+                sentences: [
+                    "When you arrive, go straight to the main office to collect your ticket.",
+                    "You will need to show this to a member of staff at the door before you enter.",
+                    "Inside the building, you will find a photography exhibition on the ground floor.",
+                    "Before you look at the pictures, a guide will tell you about the day’s event.",
+                    "These activities will include playing and feeding the animals."
+                ]
+            },
+            {
+                topic: "Zinedine Zidane",
+                sentences: [
+                    "When he was a child, he played for some local teams near his home in Marseille.",
+                    "He then moved away from his home to join Cannes Football Club in the southern France.",
+                    "While he was at that club, people throughout France saw that he was a brilliant player.",
+                    "After that, he moved to Italy and Spain, where he finished his playing career.",
+                    "Since he retired from playing, he has worked as a football club manager."
+                ]
+            },
+            {
+                topic: "Conference Hall Guide",
+                sentences: [
+                    "When you collect you pack, go to the lifts on the right.",
+                    "Take the lift to the third floor and go to the main desk.",
+                    "Show your pass from the conference pack to a member of staff at the desk.",
+                    "He or she will tell you your seat number for the talk at the main hall.",
+                    "Once you are in the hall, someone will help you find your seat."
+                ]
+            },
+            {
+                topic: "Natural History Center",
+                sentences: [
+                    "The most important of these is the Natural history centre.",
+                    "The entrance of the centre is on the town’s main square.",
+                    "When you enter the building from the square, you will see a set of stairs to your left.",
+                    "The ticket office is on the top of these stairs, the staff there are very helpful.",
+                    "As well as selling tickets, they can provide maps and useful tour information."
+                ]
+            },
+            {
+                topic: "Buying a house",
+                sentences: [
+                    "When looking for a new home, it's crucial to follow certain steps.",
+                    "The first and most important step is to assess your personal needs carefully.",
+                    "In order to choose the right place, you must research the neighborhood thoroughly.",
+                    "The most important factor is the cost of the homes in that area.",
+                    "Other factors to consider are the availability of schools, parks, and shops nearby.",
+                    "Such requirements, of course, will greatly influence your overall satisfaction and happiness."
+                ]
+            },
+            {
+                topic: "Charlie Chaplin",
+                sentences: [
+                    "Charlie Chaplin was born in England and grew up in London.",
+                    "He first performed at one of the city's theater at the age of 5.",
+                    "Although he was very young, he was very popular on the stage.",
+                    "His popularity grew, he soon appeared in all the theaters of the country.",
+                    "After being famous at home, he moved to America and joined a traveling theater group."
+                ]
+            }
+
+
+        ];
+
+        let currentIndex = -1;
+        let completedQuestions = [];
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function renderQuestion(index) {
+            const question = questionSets[index];
+            document.getElementById("topicTitle").textContent = "Reading Part 2 - Topic: " + question.topic;
+            document.getElementById("testCounter").textContent = `Câu ${completedQuestions.indexOf(index)+1} / ${questionSets.length}`;
+
+            document.querySelectorAll(".drop-zone").forEach(zone => zone.innerHTML = "");
+            const rightBox = document.getElementById("rightBox");
+            rightBox.innerHTML = "<h4>Các câu xáo trộn:</h4>";
+
+            const shuffled = shuffle([...question.sentences]);
+            shuffled.forEach((text, i) => {
+                const div = document.createElement("div");
+                div.className = "sentence";
+                div.id = "item-" + i + "-" + Date.now();
+                div.textContent = text;
+                div.draggable = true;
+                div.ondragstart = drag;
+                rightBox.appendChild(div);
+            });
+
+            document.getElementById("result").textContent = "";
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const dragged = document.getElementById(data);
+
+            if (ev.target.classList.contains("drop-zone")) {
+                if (ev.target.children.length > 0) {
+                    const current = ev.target.firstElementChild;
+                    document.getElementById("rightBox").appendChild(current);
+                }
+                ev.target.appendChild(dragged);
+            } else if (ev.target.id === "rightBox") {
+                ev.target.appendChild(dragged);
+            }
+        }
+
+        function checkOrder() {
+            const zones = document.querySelectorAll(".drop-zone");
+            const correct = questionSets[currentIndex].sentences;
+            let isCorrect = true;
+
+            if ([...zones].some(zone => zone.children.length === 0)) {
+                document.getElementById("result").textContent = "⚠️ Vui lòng kéo đủ 5 câu vào khung bên trái.";
+                document.getElementById("result").style.color = "orange";
+                return;
+            }
+
+            zones.forEach((zone, i) => {
+                const userAnswer = zone.firstElementChild.textContent.trim();
+                if (userAnswer !== correct[i]) {
+                    isCorrect = false;
+                }
+            });
+
+            document.getElementById("result").textContent = isCorrect
+                ? "✅ Chính xác! Bạn đã làm đúng thứ tự."
+                : "❌ Sai rồi. Hãy kiểm tra lại.";
+            document.getElementById("result").style.color = isCorrect ? "green" : "red";
+        }
+
+        function nextQuestion() {
+            if (completedQuestions.length >= questionSets.length) {
+                alert("🎉 Bạn đã hoàn thành tất cả các câu hỏi!");
+                return;
+            }
+
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * questionSets.length);
+            } while (completedQuestions.includes(newIndex));
+
+            completedQuestions.push(newIndex);
+            currentIndex = newIndex;
+            renderQuestion(currentIndex);
+        }
+
+        function prevQuestion() {
+            if (completedQuestions.length <= 1) return;
+            completedQuestions.pop();
+            currentIndex = completedQuestions[completedQuestions.length - 1];
+            renderQuestion(currentIndex);
+        }
+
+        function retryQuestion() {
+            if (currentIndex >= 0) {
+                renderQuestion(currentIndex);
+            }
+        }
+
+        // Bắt đầu
+        nextQuestion();
+    </script>
+</body>
+</html>
