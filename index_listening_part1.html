@@ -1,235 +1,1188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Aptis Listening - Part 1</title>
+  <meta charset="UTF-8" />
+  <title>Listening Practice</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f7fa;
-      padding: 40px;
-    }
-    form {
-      max-width: 800px;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 900px;
       margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #333;
     }
     .question {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
     }
-    .question h3 {
-      margin-bottom: 10px;
-      font-size: 18px;
-      color: #222;
-    }
-    .option {
+    label {
       display: block;
-      margin: 6px 0;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      transition: 0.2s;
-      font-size: 17px;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
       cursor: pointer;
     }
-    .option:hover {
-      background-color: #f0f4ff;
-      border-color: #4460f0;
-    }
-    .option input {
-      transform: scale(1.5);
+    input[type="radio"] {
       margin-right: 10px;
     }
+    .correct {
+      background-color: #d4edda;
+      border-color: #28a745;
+    }
+    .incorrect {
+      background-color: #f8d7da;
+      border-color: #dc3545;
+    }
     button {
-      background-color: #4460f0;
-      color: white;
-      padding: 14px 30px;
-      font-size: 18px;
+      margin: 10px 5px;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 5px;
       border: none;
-      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
       cursor: pointer;
-      margin-top: 20px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+    }
+    #navigation {
+      margin-bottom: 20px;
     }
     #result {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 18px;
+      margin-top: 20px;
     }
     ul {
-      text-align: left;
-      margin: 0 auto;
-      max-width: 600px;
-      color: red;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    .hidden {
+      display: none;
+    }
+    h2 {
+      color: #333;
     }
   </style>
 </head>
 <body>
+  <h1>Luyện nghe - Listening Part1 - QUOC ANH NGUYEN </h1>
 
-<h1>Aptis Listening - Part 1</h1>
+  <div id="navigation">
+    <button onclick="changeTest(-1)">← Trước</button>
+    <span id="testTitle" style="font-weight:bold; font-size: 18px;"></span>
+    <button onclick="changeTest(1)">Tiếp →</button>
+  </div>
 
-<form id="quizForm"></form>
+  <div id="quiz"></div>
+  <button onclick="submitTest()">Nộp bài</button>
+  <div id="result"></div>
 
-<div id="result"></div>
+  <script>
+    const tests = [
+      {
+        name: "Test 1",
+        questions: [
+          {
+            id: "q1",
+            text: "How much are the eggs?",
+            options: ["1.25 pound", "1.50 pound", "2 pounds"],
+            answer: "1.50 pound"
+          },
+          {
+            id: "q2",
+            text: "What time does the train leave? (for him to go on a business trip)",
+            options: ["9.45", "8.45", "9.15"],
+            answer: "9.15"
+          },
+          {
+            id: "q3",
+            text: "How does she go to school?",
+            options: ["She walks", "She drives", "She goes by bus"],
+            answer: "She walks"
+          },
+          {
+            id: "q4",
+            text: "What time is lunch ready?",
+            options: ["1pm", "2pm", "3pm"],
+            answer: "2pm"
+          },
+          {
+            id: "q5",
+            text: "What does she usually do in the evening?",
+            options: ["listen to music", "go for a walk", "go to the coffee shop"],
+            answer: "go for a walk"
+          },
+          {
+            id: "q6",
+            text: "Where will they meet?",
+            options: ["at the university", "at the station", "at the park"],
+            answer: "at the park"
+          },
+          {
+            id: "q7",
+            text: "What does this family do most weekends?",
+            options: ["goes with their friends", "goes bowling", "goes for a walk"],
+            answer: "goes for a walk"
+          },
+          {
+            id: "q8",
+            text: "What day do they meet?",
+            options: ["Tuesday", "Thursday", "Friday"],
+            answer: "Tuesday"
+          },
+          {
+            id: "q9",
+            text: "What career did he choose?",
+            options: ["to work in business", "to be a teacher", "to keep studying"],
+            answer: "to work in business"
+          },
+          {
+            id: "q10",
+            text: "What course did he take?",
+            options: ["Management", "Computer", "Leadership"],
+            answer: "Computer"
+          },
+          {
+            id: "q11",
+            text: "How is being a writer different from other jobs?",
+            options: ["She works irregular time", "She does not have a high salary", "She has no fixed workplace"],
+            answer: "She works irregular time"
+          },
+          {
+            id: "q12",
+            text: "Where does she buy food?",
+            options: ["at a local market", "at a convenient store", "at a new shopping centre"],
+            answer: "at a new shopping centre"
+          },
+          {
+            id: "q13",
+            text: "What causes air pollution?",
+            options: ["Fire from the countryside", "Pollutants from private cars", "Smoke from factories"],
+            answer: "Fire from the countryside"
+          }
+        ]
 
-<script>
-  // Danh sach cau hoi
-  const questions = [
-    {
-      id: "q1",
-      text: "How much are the eggs?",
-      options: ["1.25 pound", "1.50 pound", "2 pounds"],
-      answer: "1.50 pound"
-    },
-    {
-      id: "q2",
-      text: "What time does the train leave?",
-      options: ["9.45", "8.45", "9.15"],
-      answer: "9.15"
-    },
-    {
-    id: "q3",
-    text: "How does she go to school?",
-    options: ["She walks", "She drives", "She goes by bus"],
-    answer: "She walks"
-  },
-  {
-    id: "q4",
-    text: "What time is lunch ready?",
-    options: ["1pm", "2pm", "3pm"],
-    answer: "2pm"
-  },
-  {
-    id: "q5",
-    text: "What does she usually do in the evening?",
-    options: ["listen to music", "go for a walk", "go to the coffee shop"],
-    answer: "go for a walk"
-  },
-  {
-    id: "q6",
-    text: "Where will they meet?",
-    options: ["at the university", "at the station", "at the park"],
-    answer: "at the park"
-  },
-  {
-    id: "q7",
-    text: "What does this family do most weekends?",
-    options: ["goes with their friends", "goes bowling", "goes for a walk"],
-    answer: "goes for a walk"
-  },
-  {
-    id: "q8",
-    text: "What day do they meet?",
-    options: ["Tuesday", "Thursday", "Friday"],
-    answer: "Tuesday"
-  },
-  {
-    id: "q9",
-    text: "What career did he choose?",
-    options: ["to work in business", "to be a teacher", "to keep studying"],
-    answer: "to work in business"
-  },
-  {
-    id: "q10",
-    text: "What course did he take?",
-    options: ["Management", "Computer", "Leadership"],
-    answer: "Management"
-  },
-  {
-    id: "q11",
-    text: "How is being a writer different from other jobs?",
-    options: ["She works irregular time", "She does not have a high salary", "She has no fixed workplace"],
-    answer: "She works irregular time"
-  },
-  {
-    id: "q12",
-    text: "Where does she buy food?",
-    options: ["at a local market", "at a convenient store", "at a new shopping centre"],
-    answer: "at a new shopping centre"
-  },
-  {
-    id: "q13",
-    text: "What causes air pollution?",
-    options: ["Fire from the countryside", "Pollutants from private cars", "Smoke from factories"],
-    answer: "Fire from the countryside"
-  }
-    // Them cau hoi moi o day
-  ];
-
-  // Xao tron 1 mang
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  // Render cau hoi ra giao dien
-  function renderQuestions() {
-    const form = document.getElementById("quizForm");
-    questions.forEach((q, index) => {
-      const shuffled = shuffle([...q.options]);
-      const qDiv = document.createElement("div");
-      qDiv.className = "question";
-
-      qDiv.innerHTML = `
-        <h3>${index + 1}. ${q.text}</h3>
-        ${shuffled.map((opt, i) => `
-          <label class="option">
-            <input type="radio" name="${q.id}" data-value="${opt}"> ${String.fromCharCode(65 + i)}. ${opt}
-          </label>
-        `).join('')}
-      `;
-      form.appendChild(qDiv);
-    });
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.innerText = "Submit";
-    btn.onclick = submitQuiz;
-    form.appendChild(btn);
-  }
-
-  // Cham diem
-  function submitQuiz() {
-    let score = 0;
-    let wrongList = [];
-
-    questions.forEach(q => {
-      const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-      if (selected) {
-        const val = selected.getAttribute("data-value");
-        if (val === q.answer) {
-          score++;
-        } else {
-          wrongList.push(`${q.text} ❌ Chon "${val}", dung la "${q.answer}"`);
+      },
+      {
+        name: "Test 2",
+        questions: [
+          {
+            id: "q1",
+            text: "What time do they meet?",
+            options: ["7.30pm", "6.30pm", "9.30pm"],
+            answer: "6.30pm"
+          },
+          {
+            id: "q2",
+            text: "What time does she meet her child?",
+            options: ["Seven o’clock", "Three o'clock", "Two o’clock"],
+            answer: "Three o'clock"
+          },
+          {
+            id: "q3",
+            text: "What does her sister drink?",
+            options: ["Water", "Tea", "Coffee"],
+            answer: "Tea"
+          },
+          {
+            id: "q4",
+            text: "How many buildings will the town have?",
+            options: ["1000", "2000", "3000"],
+            answer: "2000"
+          },
+          {
+            id: "q5",
+            text: "What does she usually do on Saturdays?",
+            options: ["plays sports", "goes to the park", "sees her family"],
+            answer: "sees her family"
+          },
+          {
+            id: "q6",
+            text: "What do they both buy?",
+            options: ["Books", "Trousers", "Clothes"],
+            answer: "Clothes"
+          },
+          {
+            id: "q7",
+            text: "What color shirt did he buy?",
+            options: ["Blue", "Black", "Red"],
+            answer: "Black"
+          },
+          {
+            id: "q8",
+            text: "When is the assignment due?",
+            options: ["on Friday", "on Saturday", "on Thursday"],
+            answer: "on Saturday"
+          },
+          {
+            id: "q9",
+            text: "What did the professor want her to do?",
+            options: ["Do research", "Make a report", "Speak at the conference"],
+            answer: "Speak at the conference"
+          },
+          {
+            id: "q10",
+            text: "Where did she choose to go on holiday?",
+            options: ["The south", "The park", "The mountain"],
+            answer: "The south"
+          },
+          {
+            id: "q11",
+            text: "What is special about the new song?",
+            options: ["The singer’s voice", "The words", "The tune"],
+            answer: "The words"
+          },
+          {
+            id: "q12",
+            text: "What did she like the most about the movie?",
+            options: ["the car scenes", "the fight scenes", "the mountain scenes"],
+            answer: "the mountain scenes"
+          },
+          {
+            id: "q13",
+            text: "Why did she become a scientist?",
+            options: ["a large stone", "her dream", "her favorite collection"],
+            answer: "a large stone"
+          }
+        ]
+      },
+      {
+        name: "Test 3",
+        questions: [
+          {
+            id: "q1",
+            text: "What time will they meet?",
+            options: ["Half past eight", "Quarter to seven", "Quarter to eight"],
+            answer: "Quarter to eight"
+          },
+          {
+            id: "q2",
+            text: "Where did they meet for the bus home?",
+            options: ["hotel entrance", "bus station", "market place"],
+            answer: "market place"
+          },
+          {
+            id: "q3",
+            text: "How old is Stephanie?",
+            options: ["21", "23", "24"],
+            answer: "21"
+          },
+          {
+            id: "q4",
+            text: "Where is the club near?",
+            options: ["A park", "A library", "A coffee shop"],
+            answer: "A park"
+          },
+          {
+            id: "q5",
+            text: "What to feed the cat?",
+            options: ["Milk", "Fish", "Cat food"],
+            answer: "Fish"
+          },
+          {
+            id: "q6",
+            text: "What does this family do most weekends?",
+            options: ["goes with their friends", "goes bowling", "goes for a walk"],
+            answer: "goes for a walk"
+          },
+          {
+            id: "q7",
+            text: "What does he need to buy for his sister?",
+            options: ["Chocolates", "Eggs", "Milk"],
+            answer: "Chocolates"
+          },
+          {
+            id: "q8",
+            text: "What time does the train leave?",
+            options: ["8.45", "9.15", "9.30"],
+            answer: "9.30"
+          },
+          {
+            id: "q9",
+            text: "Which area has the best weather?",
+            options: ["In the south", "In the east", "In the west"],
+            answer: "In the east"
+          },
+          {
+            id: "q10",
+            text: "Why was the museum visit cancelled?",
+            options: ["Join other activities", "Poor weather conditions", "Not enough people"],
+            answer: "Not enough people"
+          },
+          {
+            id: "q11",
+            text: "Where is the cafe?",
+            options: ["Next to the station", "Near the gift shop", "Opposite the gift shop"],
+            answer: "Opposite the gift shop"
+          },
+          {
+            id: "q12",
+            text: "Where is the tea served?",
+            options: ["The building", "The river boat", "The museum"],
+            answer: "The river boat"
+          },
+          {
+            id: "q13",
+            text: "Which room is the largest in her house?",
+            options: ["Living room", "Bedroom", "Kitchen"],
+            answer: "Kitchen"
+          }
+        ]
+      },
+      {
+        name: "Test 4",
+        questions: [
+          {
+            id: "q1",
+            text: "What time is the meeting?",
+            options: ["9.15", "10.15", "10.30"],
+            answer: "10.15"
+          },
+          {
+            id: "q2",
+            text: "Why did he call his friend?",
+            options: ["To make an appointment", "To say hello", "Suggest a drink"],
+            answer: "Suggest a drink"
+          },
+          {
+            id: "q3",
+            text: "How does he feel?",
+            options: ["Sick", "Sad", "Well"],
+            answer: "Sick"
+          },
+          {
+            id: "q4",
+            text: "What is the mother asking her daughter to buy?",
+            options: ["eggs", "chocolates", "bread"],
+            answer: "eggs"
+          },
+          {
+            id: "q5",
+            text: "When do they meet?",
+            options: ["8.00", "9.00", "10.00"],
+            answer: "10.00"
+          },
+          {
+            id: "q6",
+            text: "Why can't she pick up her child?",
+            options: ["meet her client", "have an urgent meeting", "stay late at the office"],
+            answer: "stay late at the office"
+          },
+          {
+            id: "q7",
+            text: "What movie does she recommend?",
+            options: ["comedy film", "action film", "horror film"],
+            answer: "action film"
+          },
+          {
+            id: "q8",
+            text: "A man is calling his friend. Where is he?",
+            options: ["the park", "the station", "the town hall"],
+            answer: "the town hall"
+          },
+          {
+            id: "q9",
+            text: "What means of transport does he use to get to work?",
+            options: ["by bus", "by train", "by car"],
+            answer: "by bus"
+          },
+          {
+            id: "q10",
+            text: "What time do experts recommend eating fruit?",
+            options: ["in the morning", "in the afternoon", "in the evening"],
+            answer: "in the morning"
+          },
+          {
+            id: "q11",
+            text: "Why does she wake up early?",
+            options: ["to exercise", "to have some quiet time", "to do housework"],
+            answer: "to have some quiet time"
+          },
+          {
+            id: "q12",
+            text: "Why is he learning to drive?",
+            options: ["driving a car is his dream", "he hates public transport", "he has to drive to work"],
+            answer: "he has to drive to work"
+          },
+          {
+            id: "q13",
+            text: "What does he buy directly at the shop?",
+            options: ["Books", "Clothes", "Trousers"],
+            answer: "Clothes"
+          }
+        ]
+      },
+      {
+        name: "Test 5",
+        questions: [
+          {
+            id: "q1",
+            text: "How much did he pay for the computer?",
+            options: ["350 pounds", "150 pounds", "250 pounds"],
+            answer: "250 pounds"
+          },
+          {
+            id: "q2",
+            text: "What did they bring for the picnic?",
+            options: ["clothes", "fruit", "food"],
+            answer: "food"
+          },
+          {
+            id: "q3",
+            text: "What colour is the teacher's house?",
+            options: ["Blue", "Red", "White"],
+            answer: "White"
+          },
+          {
+            id: "q4",
+            text: "What time is the football match?",
+            options: ["1pm", "7pm", "4pm"],
+            answer: "1pm"
+          },
+          {
+            id: "q5",
+            text: "What does she do on her holidays?",
+            options: ["Drawing", "Walking", "Cooking"],
+            answer: "Walking"
+          },
+          {
+            id: "q6",
+            text: "Why does she like the manager?",
+            options: ["He was good at his job", "He paid her a lot", "He taught her a lot"],
+            answer: "He taught her a lot"
+          },
+          {
+            id: "q7",
+            text: "What does he want to be?",
+            options: ["Reporter", "Chef", "Writer"],
+            answer: "Writer"
+          },
+          {
+            id: "q8",
+            text: "What does he drink?",
+            options: ["Tea", "Juice", "Water"],
+            answer: "Water"
+          },
+          {
+            id: "q9",
+            text: "What does he remember most about his school days?",
+            options: ["Homework", "History classes", "Teachers"],
+            answer: "History classes"
+          },
+          {
+            id: "q10",
+            text: "What will she do?",
+            options: ["Go to the coffee shop", "Go for a drive", "Go on a picnic"],
+            answer: "Go to the coffee shop"
+          },
+          {
+            id: "q11",
+            text: "What does she have in common with her mother?",
+            options: ["They look like each other", "They have similar interests", "They have similar characteristics"],
+            answer: "They have similar interests"
+          },
+          {
+            id: "q12",
+            text: "What does he buy at the shop?",
+            options: ["a suit for the office", "a dress for his wife", "new clothes"],
+            answer: "a suit for the office"
+          },
+          {
+            id: "q13",
+            text: "What do birds do in winter?",
+            options: ["They look for food reserves", "They stay in groups for protection", "They migrate to other regions"],
+            answer: "They stay in groups for protection"
+          }
+        ]
+      },
+      {
+        name: "Test 6",
+        questions: [
+          {
+            id: "q1",
+            text: "Why did he call his friend?",
+            options: ["To make an appointment", "To say hello", "Suggest a drink"],
+            answer: "Suggest a drink"
+          },
+          {
+            id: "q2",
+            text: "How much does the smallest car cost?",
+            options: ["1250 pounds", "2250 pounds", "3250 pounds"],
+            answer: "3250 pounds"
+          },
+          {
+            id: "q3",
+            text: "A woman is calling her friend. What did she lose?",
+            options: ["Phone", "Bag", "Key"],
+            answer: "Phone"
+          },
+          {
+            id: "q4",
+            text: "What did he forget?",
+            options: ["Money", "Phone", "Glasses"],
+            answer: "Glasses"
+          },
+          {
+            id: "q5",
+            text: "How many Americans are there?",
+            options: ["one", "two", "three"],
+            answer: "one"
+          },
+          {
+            id: "q6",
+            text: "Which room is her favourite?",
+            options: ["Bathroom", "Kitchen", "Bedroom"],
+            answer: "Bathroom"
+          },
+          {
+            id: "q7",
+            text: "Where did they go last year?",
+            options: ["Camping", "Cycling", "Bowling"],
+            answer: "Camping"
+          },
+          {
+            id: "q8",
+            text: "What subject does her son like to study?",
+            options: ["Science", "Art", "Math"],
+            answer: "Art"
+          },
+          {
+            id: "q9",
+            text: "What does she usually do in her free time?",
+            options: ["Go to the theatre and play sports", "Play sports and go shopping", "Stay at home and shop online"],
+            answer: "Go to the theatre and play sports"
+          },
+          {
+            id: "q10",
+            text: "What advice do they need for decorating their living room?",
+            options: ["How to buy a sofa", "Where to buy cups", "Where to buy a new table"],
+            answer: "Where to buy a new table"
+          },
+          {
+            id: "q11",
+            text: "What is his opinion on train travel?",
+            options: ["Convenient", "Friendly", "Practical"],
+            answer: "Practical"
+          },
+          {
+            id: "q12",
+            text: "What is not original?",
+            options: ["Furniture", "Door", "Window"],
+            answer: "Furniture"
+          },
+          {
+            id: "q13",
+            text: "What number do you press to buy a new computer?",
+            options: ["Two", "Three", "Four"],
+            answer: "Three"
+          }
+        ]
+      },
+      {
+        name: "Test 7",
+        questions: [
+          {
+            id: "q1",
+            text: "Where does she walk every night?",
+            options: ["The university area", "The park", "The college"],
+            answer: "The college"
+          },
+          {
+            id: "q2",
+            text: "How many chairs do they need to prepare for a meeting?",
+            options: ["10", "20", "30"],
+            answer: "20"
+          },
+          {
+            id: "q3",
+            text: "Where did she ask the coffee shop to look for her lost item?",
+            options: ["On the sofa", "In the corner", "On the table"],
+            answer: "In the corner"
+          },
+          {
+            id: "q4",
+            text: "Where did they meet?",
+            options: ["The parking lot", "The front entrance", "The school gate"],
+            answer: "The front entrance"
+          },
+          {
+            id: "q5",
+            text: "The daughter is calling her father. What did she buy?",
+            options: ["Trousers", "A dress", "Glasses"],
+            answer: "A dress"
+          },
+          {
+            id: "q6",
+            text: "There will be a school party soon, what should the teacher prepare?",
+            options: ["Prepare drinks", "Arrange the seat", "Order the food"],
+            answer: "Order the food"
+          },
+          {
+            id: "q7",
+            text: "When will she need a computer?",
+            options: ["Friday", "Thursday", "Monday"],
+            answer: "Friday"
+          },
+          {
+            id: "q8",
+            text: "What country will they study next semester?",
+            options: ["France", "Italy", "Germany"],
+            answer: "France"
+          },
+          {
+            id: "q9",
+            text: "What do they need to repair for the building?",
+            options: ["Windows", "Doors", "Gate"],
+            answer: "Windows"
+          },
+          {
+            id: "q10",
+            text: "What does the actor like to do?",
+            options: ["Jogging", "Swimming", "Drawing"],
+            answer: "Drawing"
+          },
+          {
+            id: "q11",
+            text: "What new thing is being built at the school?",
+            options: ["A stadium", "A Performance space", "A school yard"],
+            answer: "A Performance space"
+          },
+          {
+            id: "q12",
+            text: "What does he like about Dubai?",
+            options: ["He gets a higher salary", "He enjoys the weather here", "He enjoys his job here"],
+            answer: "He enjoys his job here"
+          },
+          {
+            id: "q13",
+            text: "What does he advice young people to do to save money?",
+            options: ["Cook for yourself", "Save money", "Buy things online"],
+            answer: "Cook for yourself"
+          }
+        ]
+      },
+      {
+        name: "Test 8",
+        questions: [
+          {
+            id: "q1",
+            text: "Which room will they study in?",
+            options: ["Room 201", "Room 301", "Room 302"],
+            answer: "Room 301"
+          },
+          {
+            id: "q2",
+            text: "What time is the football match?",
+            options: ["1pm", "7pm", "4pm"],
+            answer: "1pm"
+          },
+          {
+            id: "q3",
+            text: "What is the phone number of the shop?",
+            options: ["20 10 30", "10 20 30", "30 10 20"],
+            answer: "20 10 30"
+          },
+          {
+            id: "q4",
+            text: "What did they bring for the picnic?",
+            options: ["clothes", "fruit", "food"],
+            answer: "food"
+          },
+          {
+            id: "q5",
+            text: "How many copies did he sell?",
+            options: ["Over 300000 copies", "100.000 copies", "30.000 copies"],
+            answer: "Over 300000 copies"
+          },
+          {
+            id: "q6",
+            text: "Where did they go last year?",
+            options: ["Camping", "Cycling", "Bowling"],
+            answer: "Camping"
+          },
+          {
+            id: "q7",
+            text: "What do they plan to do together?",
+            options: ["Go to the coffee shop", "Make plans later", "Have dinner together"],
+            answer: "Make plans later"
+          },
+          {
+            id: "q8",
+            text: "What does the man drink?",
+            options: ["Water and iced tea", "Water", "Iced tea"],
+            answer: "Iced tea"
+          },
+          {
+            id: "q9",
+            text: "Who did she take the picture of?",
+            options: ["The girl's team", "The boy’s team", "Anna, Sara and the girl's team"],
+            answer: "The girl's team"
+          },
+          {
+            id: "q10",
+            text: "Where do they go when they travel to India?",
+            options: ["Go to the park", "Go to famous places", "Go out to eat"],
+            answer: "Go to the park"
+          },
+          {
+            id: "q11",
+            text: "What is the weather like today?",
+            options: ["Cold and not wet", "Hot and wet", "Cold and wet"],
+            answer: "Cold and wet"
+          },
+          {
+            id: "q12",
+            text: "How did he adjust the meeting?",
+            options: ["cancel the meeting", "having the meeting without him", "having the meeting another day"],
+            answer: "having the meeting without him"
+          },
+          {
+            id: "q13",
+            text: "Which door do they need to take to get to Edinburgh?",
+            options: ["Two", "Three", "Four"],
+            answer: "Two"
+          }
+        ]
+      },
+      {
+      name: "Test 9",
+      questions: [
+        {
+          id: "q1",
+          text: "How does he feel?",
+          options: ["Sick", "Sad", "Well"],
+          answer: "Sick"
+        },
+        {
+          id: "q2",
+          text: "How long does it take to get to the station?",
+          options: ["15 minutes", "20 minutes", "25 minutes"],
+          answer: "20 minutes"
+        },
+        {
+          id: "q3",
+          text: "What did he call to say?",
+          options: ["to say hello", "to meet Felix", "to say thank you"],
+          answer: "to say thank you"
+        },
+        {
+          id: "q4",
+          text: "Who is coming to visit him this weekend?",
+          options: ["His wife", "His wife’s parents", "His sister and her children"],
+          answer: "His sister and her children"
+        },
+        {
+          id: "q5",
+          text: "What time is the meeting?",
+          options: ["2pm", "10am", "11am"],
+          answer: "2pm"
+        },
+        {
+          id: "q6",
+          text: "Why can't she pick up her child?",
+          options: ["meet her client", "have an urgent meeting", "stay late at the office"],
+          answer: "stay late at the office"
+        },
+        {
+          id: "q7",
+          text: "How much do the cleaning products cost?",
+          options: ["one pound fifty", "two pounds", "one pence"],
+          answer: "one pound fifty"
+        },
+        {
+          id: "q8",
+          text: "Where is she going with her family?",
+          options: ["The mountains", "The lake", "The park"],
+          answer: "The mountains"
+        },
+        {
+          id: "q9",
+          text: "What did he usually do last year?",
+          options: ["Running", "Cycling", "Walking"],
+          answer: "Cycling"
+        },
+        {
+          id: "q10",
+          text: "How many minutes did he have to speak?",
+          options: ["10", "15", "25"],
+          answer: "15"
+        },
+        {
+          id: "q11",
+          text: "Who does she live with?",
+          options: ["Her colleague", "Her sister", "Best friends"],
+          answer: "Best friends"
+        },
+        {
+          id: "q12",
+          text: "Why does she want to be a writer?",
+          options: ["Help people", "Make money", "Her dream"],
+          answer: "Help people"
+        },
+        {
+          id: "q13",
+          text: "Why was the flight canceled?",
+          options: ["There are no flight staff", "Plane maintenance", "Poor weather conditions"],
+          answer: "Poor weather conditions"
         }
-      } else {
-        wrongList.push(`${q.text} ❌ Khong chon (dung la "${q.answer}")`);
-      }
-    });
-
-    const result = document.getElementById("result");
-    result.innerHTML = `<h2>✅ Đúng ${score} / ${questions.length} câu</h2>`;
-    if (wrongList.length > 0) {
-      result.innerHTML += "<br><ul>" + wrongList.map(x => `<li>${x}</li>`).join('') + "</ul>";
+      ]
+    },
+    {
+      name: "Test 10",
+      questions: [
+        {
+          id: "q1",
+          text: "Why did he call his friend?",
+          options: ["To make an appointment", "To say hello", "Suggest a drink"],
+          answer: "Suggest a drink"
+        },
+        {
+          id: "q2",
+          text: "When did they decide to meet?",
+          options: ["7am on Friday", "9am on Sunday", "9am on Saturday"],
+          answer: "9am on Sunday"
+        },
+        {
+          id: "q3",
+          text: "A girl is calling her mother. Which dress does she want?",
+          options: ["long and green", "long and red", "short and red"],
+          answer: "long and red"
+        },
+        {
+          id: "q4",
+          text: "What day is the new appointment?",
+          options: ["Thursday 13th", "Tuesday 13th", "Wednesday 10th"],
+          answer: "Thursday 13th"
+        },
+        {
+          id: "q5",
+          text: "A man is calling his wife. Where did they meet?",
+          options: ["At the park", "At the station", "Outside a shop"],
+          answer: "Outside a shop"
+        },
+        {
+          id: "q6",
+          text: "What did she do last weekend?",
+          options: ["Stayed at home", "Went shopping", "Went to the cinema"],
+          answer: "Stayed at home"
+        },
+        {
+          id: "q7",
+          text: "How many weeks have they been in India?",
+          options: ["1 week", "2 weeks", "3 weeks"],
+          answer: "2 weeks"
+        },
+        {
+          id: "q8",
+          text: "Where is the office?",
+          options: ["Opposite the hotel", "Near the park", "Opposite the station"],
+          answer: "Opposite the hotel"
+        },
+        {
+          id: "q9",
+          text: "Where do they wait for the bus?",
+          options: ["Next to the hotel", "Near the hotel's main entrance", "By the hotel’s main entrance"],
+          answer: "By the hotel’s main entrance"
+        },
+        {
+          id: "q10",
+          text: "What does his wife like to do?",
+          options: ["sightseeing", "going shopping", "photography"],
+          answer: "photography"
+        },
+        {
+          id: "q11",
+          text: "What outdoor activities do they do in the afternoon?",
+          options: ["Play golf", "Go to dance classes", "Play bridge"],
+          answer: "Play golf"
+        },
+        {
+          id: "q12",
+          text: "A woman is introducing a concert. The concert will end with?",
+          options: ["A surprise performance", "Some special offers", "The city’s favorite group"],
+          answer: "The city’s favorite group"
+        },
+        {
+          id: "q13",
+          text: "What was the writer's first job?",
+          options: ["cook", "reporter", "teacher"],
+          answer: "teacher"
+        }
+      ]
+    },
+    {
+      name: "Test 11",
+      questions: [
+        {
+          id: "q1",
+          text: "What does her sister drink?",
+          options: ["Water", "Tea", "Coffee"],
+          answer: "Tea"
+        },
+        {
+          id: "q2",
+          text: "What is the population of this village?",
+          options: ["10.000", "2.000", "5.000"],
+          answer: "10.000"
+        },
+        {
+          id: "q3",
+          text: "Where does he want to go tomorrow?",
+          options: ["The town hall", "The city center", "The museum"],
+          answer: "The town hall"
+        },
+        {
+          id: "q4",
+          text: "What floor is the office on?",
+          options: ["on the first floor", "on the second floor", "on the third floor"],
+          answer: "on the first floor"
+        },
+        {
+          id: "q5",
+          text: "What is the cost of the bus?",
+          options: ["2.5", "1.5", "3.0"],
+          answer: "2.5"
+        },
+        {
+          id: "q6",
+          text: "When can they play football at school?",
+          options: ["Friday afternoon", "Wednesday afternoon", "Thursday afternoon"],
+          answer: "Wednesday afternoon"
+        },
+        {
+          id: "q7",
+          text: "Where is the office?",
+          options: ["Opposite the hotel", "Near the park", "Opposite the station"],
+          answer: "Opposite the hotel"
+        },
+        {
+          id: "q8",
+          text: "A man is calling his wife. Where did they meet?",
+          options: ["At the park", "At the station", "Outside a shop"],
+          answer: "Outside a shop"
+        },
+        {
+          id: "q9",
+          text: "What time do he have dinner these days?",
+          options: ["6 o'clock", "7 o'clock", "8 o'clock"],
+          answer: "7 o'clock"
+        },
+        {
+          id: "q10",
+          text: "What does he do after work?",
+          options: ["Go to the coffee shop", "Play football", "Go home"],
+          answer: "Play football"
+        },
+        {
+          id: "q11",
+          text: "What did they both like about the movie?",
+          options: ["the characters", "the ending", "the plot"],
+          answer: "the ending"
+        },
+        {
+          id: "q12",
+          text: "What area is he describing?",
+          options: ["a university area", "a park", "a library"],
+          answer: "a university area"
+        },
+        {
+          id: "q13",
+          text: "A man wants to buy a new house. What is his biggest problem?",
+          options: ["choosing the proper area", "financial problems", "persuading his family"],
+          answer: "persuading his family"
+        }
+      ]
+    },
+    {
+      name: "Test 12",
+      questions: [
+        {
+          id: "q1",
+          text: "When do they meet each other?",
+          options: ["On Thursday morning", "On Wednesday morning", "On Tuesday morning"],
+          answer: "On Thursday morning"
+        },
+        {
+          id: "q2",
+          text: "How old is this city?",
+          options: ["150 years", "1500 years", "2000 years"],
+          answer: "1500 years"
+        },
+        {
+          id: "q3",
+          text: "What colour is Jack's house?",
+          options: ["Red", "Black", "Green"],
+          answer: "Red"
+        },
+        {
+          id: "q4",
+          text: "What does her sister look like?",
+          options: ["Short", "Tall", "Thin"],
+          answer: "Short"
+        },
+        {
+          id: "q5",
+          text: "What did he usually do last year?",
+          options: ["Running", "Cycling", "Walking"],
+          answer: "Cycling"
+        },
+        {
+          id: "q6",
+          text: "How does he travel?",
+          options: ["by train", "by car", "by bus"],
+          answer: "by train"
+        },
+        {
+          id: "q7",
+          text: "How long does it take her to ride her bike?",
+          options: ["35 minutes", "25 minutes", "20 minutes"],
+          answer: "35 minutes"
+        },
+        {
+          id: "q8",
+          text: "A father is calling a teacher to discuss study. What will he do?",
+          options: ["Arrange private class", "Request school transfer", "Request change of subject"],
+          answer: "Arrange private class"
+        },
+        {
+          id: "q9",
+          text: "What does she usually do in her free time?",
+          options: [
+            "Go to the theatre and play sports",
+            "Play sports and go shopping",
+            "Stay at home and shop online"
+          ],
+          answer: "Go to the theatre and play sports"
+        },
+        {
+          id: "q10",
+          text: "Which sports is she good at?",
+          options: ["Running", "Swimming", "Football"],
+          answer: "Football"
+        },
+        {
+          id: "q11",
+          text: "What are the similarities between his mom and aunt?",
+          options: ["They were thin", "They have the same eye color", "They have the same hair color"],
+          answer: "They were thin"
+        },
+        {
+          id: "q12",
+          text: "What time does she usually write?",
+          options: ["In the evenings", "In the afternoons", "In the mornings"],
+          answer: "In the afternoons"
+        },
+        {
+          id: "q13",
+          text: "What did she advice for people who lack motivation at work?",
+          options: ["quit the job", "ask for a salary increase", "request a transfer"],
+          answer: "request a transfer"
+        }
+      ]
     }
-  }
 
-  // Bat dau
-  renderQuestions();
-</script>
 
+
+
+
+
+
+
+
+
+
+    ];
+
+    let currentTestIndex = 0;
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function renderTest() {
+      const test = tests[currentTestIndex];
+      const totalTests = tests.length;
+      document.getElementById("testTitle").innerText = `${test.name} (${currentTestIndex + 1}/${totalTests})`;
+
+      const quizDiv = document.getElementById("quiz");
+      quizDiv.innerHTML = "";
+
+      test.questions.forEach((q, index) => {
+        const div = document.createElement("div");
+        div.classList.add("question");
+
+        const h3 = document.createElement("h3");
+        h3.innerText = `${index + 1}. ${q.text}`;
+        div.appendChild(h3);
+
+        const shuffledOptions = shuffleArray([...q.options]);
+
+        shuffledOptions.forEach(option => {
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = q.id;
+          input.setAttribute("data-value", option);
+          label.appendChild(input);
+          label.append(option);
+          div.appendChild(label);
+        });
+
+        quizDiv.appendChild(div);
+      });
+
+      document.getElementById("result").innerHTML = "";
+    }
+
+    function changeTest(direction) {
+      currentTestIndex += direction;
+      if (currentTestIndex < 0) currentTestIndex = 0;
+      if (currentTestIndex >= tests.length) currentTestIndex = tests.length - 1;
+      renderTest();
+    }
+
+    function submitTest() {
+      const test = tests[currentTestIndex];
+      let score = 0;
+      let wrongList = [];
+
+      test.questions.forEach(q => {
+        const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+        const correctOption = Array.from(document.querySelectorAll(`input[name="${q.id}"]`)).find(opt => opt.getAttribute("data-value") === q.answer);
+
+        Array.from(document.querySelectorAll(`input[name="${q.id}"]`)).forEach(opt => {
+          opt.parentElement.classList.remove("correct", "incorrect");
+        });
+
+        if (selected) {
+          const val = selected.getAttribute("data-value");
+          if (val === q.answer) {
+            score++;
+            selected.parentElement.classList.add("correct");
+          } else {
+            selected.parentElement.classList.add("incorrect");
+            if (correctOption) correctOption.parentElement.classList.add("correct");
+            wrongList.push(`${q.text} ❌ Chọn "${val}", đúng là "${q.answer}"`);
+          }
+        } else {
+          if (correctOption) correctOption.parentElement.classList.add("correct");
+          wrongList.push(`${q.text} ❌ Không chọn (đúng là "${q.answer}")`);
+        }
+      });
+
+      const result = document.getElementById("result");
+      result.innerHTML = `<h3>✅ Đúng ${score} / ${test.questions.length} câu</h3>`;
+      if (wrongList.length > 0) {
+        result.innerHTML += "<ul>" + wrongList.map(x => `<li>${x}</li>`).join('') + "</ul>";
+      }
+    }
+
+    renderTest(); // Load test đầu tiên
+  </script>
 </body>
 </html>
