@@ -2,6 +2,14 @@
 <html>
 <head>
     <title>APTIS Listening - Test</title>
+    <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+      if (e.keyCode == 123) return false; // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+    }
+    </script>
+
     <style>
         body {
             font-family: Arial;
@@ -143,8 +151,12 @@
                     .sort((a, b) => a.sort - b.sort)
                     .map(({ value }) => value);
     }
+//....................................................................................randon câu hỏi
+    //const tests = shuffleArray(originalTests.map(test => shuffleArray(test)));
+    //const tests = originalTests;
+    const tests = originalTests.map(test => shuffleArray(test));
 
-    const tests = shuffleArray(originalTests.map(test => shuffleArray(test)));
+
     let currentTest = 0;
 
     function renderTest() {

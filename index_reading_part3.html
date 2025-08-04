@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Aptis Reading Part 3 - 13 Questions</title>
+  <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+      if (e.keyCode == 123) return false; // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+    }
+  </script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -91,13 +98,13 @@
           D: "I don't understand why this restaurant is so famous. When I arrived and saw a menu with lots of different dishes, I saw this as a bad sign. Furthermore, the menu with traditional dishes contrasting with the modern decoration style made me feel very confused and strange. The waiters here were also not friendly. This was one of my worst experiences eating at a restaurant."
         },
         statements: [
-          { text: "was impressed by the range of appetizers / thought the music was too quiet", answer: "A" },
-          { text: "didn't eat anything at the restaurant / enjoyed the atmosphere", answer: "B" },
-          { text: "thought his bad experience was probably unusual / the food was of average quality", answer: "C" },
+          { text: "was impressed by the range of appetizers", answer: "A" },
+          { text: "didn't eat anything at the restaurant ", answer: "B" },
+          { text: "thought his bad experience was probably unusual", answer: "C" },
           { text: "will definitely not return to the restaurant", answer: "D" },
-          { text: "found the decor modern but inappropriate", answer: "D" },
-          { text: "thought the food was cheap but great", answer: "A" },
-          { text: "felt comfortable despite not eating dinner", answer: "B" }
+          { text: "the food was of average quality", answer: "C" },
+          { text: "thought the music was too quiet", answer: "A" },
+          { text: "enjoyed the atmosphere", answer: "B" }
         ]
       },
       {
@@ -187,7 +194,7 @@
       },
       {
         "passages": {
-          "A": "I have ever experienced. However, after that trip, I had a strong passion for walking. So now, every day I walk as a hobby, and it also helps my health a lot. I'm old so I'm no longer interested in traveling to far away places. Instead, I want to lie on a comfortable sofa and watch my favorite TV show.",
+          "A": "Last year, I went on a mountain climbing trip with my friends. It was the most horrible trip I have ever experienced. However, after that trip, I had a strong passion for walking. So now, every day I walk as a hobby, and it also helps my health a lot. I'm old so I'm no longer interested in traveling to far away places. Instead, I want to lie on a comfortable sofa and watch my favorite TV show.",
           "B": "When I travel somewhere, I often ask for bus routes to famous tourist destinations so that I can get to those places as quickly as possible and avoid wasting time going around. Famous tourist destinations are the places I want to explore the most when traveling somewhere. I don't understand why many people just like to sit still at the beach when traveling, I find that uninteresting and time-consuming.",
           "C": "My family and I often plan to travel every time we have a vacation. If the weather is nice then our plans go ahead as usual, if not, we will postpone that vacation. For my family, light wind and warm sunlight are important when we go out. A few of my friends invited me to go climbing, but I'm afraid of heights so I refused them. However, in the future I really want to try mountain climbing once.",
           "D": "Next month's trip will be the first time I travel to another country. Normally I only travel to famous local places or in my country. These places are beautiful but I'm so excited to travel to a foreign place once in my life."
@@ -310,7 +317,7 @@
     }
 
     let questions = [...originalQuestions]; // Tạo bản sao để trộn
-    shuffleArray(questions); // Trộn thứ tự câu hỏi
+    //shuffleArray(questions); // ..............................................................Trộn thứ tự câu hỏi
     let currentIndex = 0;
 
     function renderQuestion(index) {

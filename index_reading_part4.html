@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Luyen thi APTIS - Reading Part 4</title>
+  <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+      if (e.keyCode == 123) return false; // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+    }
+  </script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -56,8 +63,10 @@
 
 <div id="result"></div>
 
-<script>
-  const tests = shuffle([
+<script>// ...............................................................................randon câu hỏi.
+  //const tests = shuffle([
+  const tests = ([
+
     {
       answers: [
         "Dicken for our time",

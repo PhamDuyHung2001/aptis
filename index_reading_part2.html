@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Aptis Reading Part 2</title>
+    <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+      if (e.keyCode == 123) return false; // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+    }
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -334,7 +341,7 @@
             {
                 topic: "Buying a house",
                 sentences: [
-                    "When looking for a new home, it's crucial to follow certain steps.",
+
                     "The first and most important step is to assess your personal needs carefully.",
                     "In order to choose the right place, you must research the neighborhood thoroughly.",
                     "The most important factor is the cost of the homes in that area.",
@@ -345,11 +352,11 @@
             {
                 topic: "Charlie Chaplin",
                 sentences: [
-                    "Charlie Chaplin was born in England and grew up in London.",
                     "He first performed at one of the city's theater at the age of 5.",
                     "Although he was very young, he was very popular on the stage.",
                     "His popularity grew, he soon appeared in all the theaters of the country.",
-                    "After being famous at home, he moved to America and joined a traveling theater group."
+                    "After being famous at home, he moved to America and joined a traveling theater group.",
+                    "Charlie Chaplin was born in England and grew up in London."
                 ]
             }
 
@@ -440,23 +447,34 @@
                 : "❌ Sai rồi. Hãy kiểm tra lại.";
             document.getElementById("result").style.color = isCorrect ? "green" : "red";
         }
+//...............................................................randon cau hoi
+<!--        function nextQuestion() {-->
+<!--            if (completedQuestions.length >= questionSets.length) {-->
+<!--                alert("🎉 Bạn đã hoàn thành tất cả các câu hỏi!");-->
+<!--                return;-->
+<!--            }-->
 
+<!--            let newIndex;-->
+<!--            do {-->
+<!--                newIndex = Math.floor(Math.random() * questionSets.length);-->
+<!--            } while (completedQuestions.includes(newIndex));-->
+
+<!--            completedQuestions.push(newIndex);-->
+<!--            currentIndex = newIndex;-->
+<!--            renderQuestion(currentIndex);-->
+<!--        }-->
         function nextQuestion() {
-            if (completedQuestions.length >= questionSets.length) {
+            if (currentIndex + 1 >= questionSets.length) {
                 alert("🎉 Bạn đã hoàn thành tất cả các câu hỏi!");
                 return;
             }
 
-            let newIndex;
-            do {
-                newIndex = Math.floor(Math.random() * questionSets.length);
-            } while (completedQuestions.includes(newIndex));
-
-            completedQuestions.push(newIndex);
-            currentIndex = newIndex;
+            currentIndex++;
+            if (!completedQuestions.includes(currentIndex)) {
+                completedQuestions.push(currentIndex);
+            }
             renderQuestion(currentIndex);
         }
-
         function prevQuestion() {
             if (completedQuestions.length <= 1) return;
             completedQuestions.pop();
