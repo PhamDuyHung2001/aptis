@@ -1,117 +1,86 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 MPU6050 Monitor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Control</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
-        h2 { color: #333; margin-bottom: 25px; }
-        .value-container { background: #f8f9fa; padding: 15px; border-radius: 12px; margin: 10px 0; border-left: 5px solid #007bff; }
-        .label { font-size: 16px; color: #666; display: block; }
-        .value { font-size: 45px; font-weight: bold; color: #007bff; }
-        .unit { font-size: 20px; color: #007bff; }
-        #status { margin-top: 15px; font-size: 14px; font-weight: bold; }
-        .connected { color: #28a745; }
-        .disconnected { color: #dc3545; }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 10px; transition: 0.3s; width: 100%; }
-        button:active { transform: scale(0.98); }
-        button:disabled { background: #6c757d; cursor: not-allowed; }
+        body { font-family: -apple-system, system-ui, sans-serif; text-align: center; background: #1a1a1a; color: white; padding: 20px; }
+        .card { background: #2d2d2d; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .value { font-size: 60px; font-weight: bold; color: #00e676; margin: 10px 0; }
+        button { 
+            width: 100%; padding: 20px; font-size: 20px; font-weight: bold;
+            background: #007bff; color: white; border: none; border-radius: 15px;
+            cursor: pointer; box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        button:active { transform: scale(0.98); background: #0056b3; }
+        .status { margin-top: 15px; font-size: 14px; color: #bbb; }
     </style>
 </head>
 <body>
-
     <div class="card">
-        <h2>Dữ liệu MPU6050</h2>
+        <h2>MPU6050 MONITOR</h2>
+        <button id="connBtn" onclick="directConnect()">KẾT NỐI NGAY</button>
+        <div id="stat" class="status">Chạm để tìm thiết bị</div>
 
-        <button id="connectBtn" onclick="connectBLE()">Kết nối Bluetooth</button>
-        <div id="status" class="disconnected">Chưa kết nối</div>
-
-        <div style="margin-top: 25px;">
-            <div class="value-container">
-                <span class="label">Góc X</span>
-                <span id="valX" class="value">0.0</span><span class="unit">°</span>
-            </div>
-            <div class="value-container">
-                <span class="label">Góc Y</span>
-                <span id="valY" class="value">0.0</span><span class="unit">°</span>
-            </div>
+        <div style="margin-top: 30px;">
+            <p>GÓC X</p>
+            <div id="valX" class="value">0.0</div>
+            <p>GÓC Y</p>
+            <div id="valY" class="value">0.0</div>
         </div>
     </div>
 
     <script>
-        const serviceUUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-        const charUUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+        const sUUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+        const cUUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+        let device = null;
 
-        let bleDevice = null;
-        let gattServer = null;
-
-        async function connectBLE() {
+        async function directConnect() {
             try {
-                const statusEl = document.getElementById('status');
-                const btn = document.getElementById('connectBtn');
-
-                statusEl.innerText = "Đang quét thiết bị...";
-
-                // Bước này bắt buộc phải nhấn nút 1 lần để trình duyệt cho phép
-                bleDevice = await navigator.bluetooth.requestDevice({
+                // Lệnh này sẽ mở TRỰC TIẾP bảng quét của trình duyệt/điện thoại
+                device = await navigator.bluetooth.requestDevice({
                     filters: [{ name: 'ESP32_MPU6050' }],
-                    optionalServices: [serviceUUID]
+                    optionalServices: [sUUID]
                 });
 
-                // Lắng nghe sự kiện mất kết nối để tự động kết nối lại
-                bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+                document.getElementById('stat').innerText = "Đang bắt tay...";
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService(sUUID);
+                const char = await service.getCharacteristic(cUUID);
 
-                await establishConnection();
-
-            } catch (error) {
-                console.log("Lỗi: " + error);
-                document.getElementById('status').innerText = "Lỗi kết nối!";
-            }
-        }
-
-        async function establishConnection() {
-            const statusEl = document.getElementById('status');
-            const btn = document.getElementById('connectBtn');
-
-            try {
-                statusEl.innerText = "Đang kết nối...";
-                gattServer = await bleDevice.gatt.connect();
-
-                const service = await gattServer.getPrimaryService(serviceUUID);
-                const characteristic = await service.getCharacteristic(charUUID);
-
-                await characteristic.startNotifications();
-                characteristic.addEventListener('characteristicvaluechanged', (event) => {
-                    const value = new TextDecoder().decode(event.target.value);
-                    const parts = value.split(',');
-                    if(parts.length >= 2) {
-                        document.getElementById('valX').innerText = parts[0];
-                        document.getElementById('valY').innerText = parts[1];
+                await char.startNotifications();
+                char.addEventListener('characteristicvaluechanged', (e) => {
+                    const val = new TextDecoder().decode(e.target.value);
+                    const p = val.split(',');
+                    if(p.length >= 2) {
+                        document.getElementById('valX').innerText = p[0];
+                        document.getElementById('valY').innerText = p[1];
                     }
                 });
 
-                statusEl.innerText = "Đang hoạt động";
-                statusEl.className = "connected";
-                btn.disabled = true;
-                btn.innerText = "Đã kết nối";
-
-            } catch (error) {
-                console.log("Không thể thiết lập GATT: " + error);
-                setTimeout(establishConnection, 2000); // Thử lại sau 2 giây nếu lỗi
+                document.getElementById('stat').innerText = "ĐÃ KẾT NỐI";
+                document.getElementById('connBtn').style.display = "none";
+                
+                device.addEventListener('gattserverdisconnected', () => {
+                    document.getElementById('stat').innerText = "Mất kết nối! Đang thử lại...";
+                    reconnect();
+                });
+            } catch (err) {
+                console.log(err);
+                document.getElementById('stat').innerText = "Không tìm thấy hoặc bị hủy";
             }
         }
 
-        // Hàm tự động chạy khi mất kết nối
-        function onDisconnected() {
-            const statusEl = document.getElementById('status');
-            const btn = document.getElementById('connectBtn');
-
-            statusEl.innerText = "Mất kết nối! Đang tự động thử lại...";
-            statusEl.className = "disconnected";
-
-            // Tự động gọi lại hàm kết nối mà không cần người dùng nhấn nút lại
-            establishConnection();
+        async function reconnect() {
+            if (!device) return;
+            try {
+                await device.gatt.connect();
+                // Tự động thiết lập lại sau khi tìm thấy
+                directConnect(); 
+            } catch (e) {
+                setTimeout(reconnect, 2000);
+            }
         }
     </script>
 </body>
