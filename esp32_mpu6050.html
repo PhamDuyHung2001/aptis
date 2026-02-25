@@ -91,14 +91,19 @@ const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 let myDevice = null;
 
+// Đăng ký Service Worker để Chrome cho phép cài đặt App
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+    .then(() => console.log("Service Worker Registered"));
+}
+
 async function startConnect() {
     const status = document.getElementById('status');
     const btn = document.getElementById('btn');
     
     try {
-        // Kiểm tra xem trình duyệt có hỗ trợ Bluetooth không
         if (!navigator.bluetooth) {
-            throw new Error("Trình duyệt không hỗ trợ Bluetooth. Hãy dùng Chrome trên Android hoặc Bluefy trên iPhone.");
+            throw new Error("Trình duyệt không hỗ trợ Bluetooth. Hãy dùng Chrome trên Android.");
         }
 
         status.innerText = "Đang quét thiết bị...";
@@ -157,4 +162,3 @@ function onDisconnected() {
 
 </body>
 </html>
-
