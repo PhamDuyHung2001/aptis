@@ -4,23 +4,29 @@
     <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/564/564500.png">
 
-    <title>MPU6050 Pro App</title>
-    
+    <title>MPU6050 Target Pro</title>
+
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; 
-            background: #121212; 
-            color: white; 
-            margin: 0; 
-            padding: 20px;
+        :root {
+            --primary-color: #00d2ff;
+            --accent-color: #00e676;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: white;
+            margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,61 +34,130 @@
             height: 100vh;
             overflow: hidden;
         }
-        .card { 
-            background: #1e1e1e; 
-            padding: 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
-            max-width: 350px; 
+
+        /* Header gọn gàng */
+        .header {
+            position: absolute;
+            top: 20px;
             width: 90%;
-            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        h2 { color: #ffffff; margin-bottom: 25px; font-weight: 300; letter-spacing: 1px; }
-        .val-box { 
-            background: #252525; 
-            padding: 20px; 
-            border-radius: 15px; 
-            margin: 15px 0;
-            border-bottom: 3px solid #00d2ff;
-        }
-        .label { font-size: 14px; color: #888; text-transform: uppercase; }
-        .val { font-size: 48px; font-weight: bold; color: #00d2ff; margin-top: 5px; }
-        button { 
-            width: 100%; 
-            padding: 18px; 
-            font-size: 18px; 
+
+        #btn {
+            padding: 10px 25px;
+            font-size: 14px;
             font-weight: bold;
             background: linear-gradient(45deg, #28a745, #218838);
-            color: white; 
-            border: none; 
-            border-radius: 15px;
-            cursor: pointer; 
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
             transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-transform: uppercase;
         }
-        button:active { transform: scale(0.95); opacity: 0.9; }
-        button:disabled { background: #444; box-shadow: none; color: #888; }
-        #status { margin-top: 20px; font-size: 13px; color: #00e676; font-weight: bold; }
+
+        #btn:disabled { background: #333; color: #777; box-shadow: none; }
+
+        #status { margin-top: 8px; font-size: 11px; letter-spacing: 1px; color: var(--accent-color); }
+
+        /* Bia tập bắn */
+        .target-area {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1e1e1e 20%, #151515 100%);
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(0, 210, 255, 0.1);
+        }
+
+        /* Các vòng tròn đồng tâm */
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ring-1 { width: 75%; height: 75%; }
+        .ring-2 { width: 50%; height: 50%; }
+        .ring-3 { width: 25%; height: 25%; border-color: rgba(0, 210, 255, 0.2); }
+
+        /* Trục chữ thập */
+        .axis-h { position: absolute; width: 100%; height: 1px; background: rgba(255,255,255,0.1); }
+        .axis-v { position: absolute; width: 1px; height: 100%; background: rgba(255,255,255,0.1); }
+
+        /* Chấm tròn di chuyển (Pointer) */
+        #pointer {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--primary-color);
+            transition: transform 0.1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            z-index: 10;
+        }
+        #pointer::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px; height: 40px;
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+
+        /* Hiển thị số liệu ở dưới */
+        .data-container {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .data-item { text-align: center; }
+        .data-label { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
+        .data-value { font-size: 28px; font-weight: bold; color: var(--primary-color); }
+
         .error { color: #ff5252 !important; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>MPU6050 MONITOR</h2>
-    
-    <button id="btn" onclick="startConnect()">KẾT NỐI BLUETOOTH</button>
-    <div id="status">Sẵn sàng kết nối</div>
+<div class="header">
+    <button id="btn" onclick="startConnect()">Kết nối ESP32</button>
+    <div id="status">SẴN SÀNG</div>
+</div>
 
-    <div style="margin-top: 20px;">
-        <div class="val-box">
-            <span class="label">Góc Nghiêng X</span>
-            <div id="x" class="val">0.0°</div>
-        </div>
-        <div class="val-box">
-            <span class="label">Góc Nghiêng Y</span>
-            <div id="y" class="val">0.0°</div>
-        </div>
+<div class="target-area">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <div class="axis-h"></div>
+    <div class="axis-v"></div>
+
+    <div id="pointer"></div>
+</div>
+
+<div class="data-container">
+    <div class="data-item">
+        <div class="data-label">Trục X (Pitch)</div>
+        <div id="x-val" class="data-value">0.0°</div>
+    </div>
+    <div class="data-item">
+        <div class="data-label">Trục Z (Yaw)</div>
+        <div id="z-val" class="data-value">0.0°</div>
     </div>
 </div>
 
@@ -90,35 +165,25 @@
 const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 let myDevice = null;
+const pointer = document.getElementById('pointer');
 
-// Đăng ký Service Worker để Chrome cho phép cài đặt App
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-    .then(() => console.log("Service Worker Registered"));
+    navigator.serviceWorker.register('sw.js');
 }
 
 async function startConnect() {
     const status = document.getElementById('status');
-    const btn = document.getElementById('btn');
-    
     try {
-        if (!navigator.bluetooth) {
-            throw new Error("Trình duyệt không hỗ trợ Bluetooth. Hãy dùng Chrome trên Android.");
-        }
-
-        status.innerText = "Đang quét thiết bị...";
-        status.className = "";
-
+        if (!navigator.bluetooth) throw new Error("Trình duyệt không hỗ trợ Bluetooth");
+        status.innerText = "ĐANG QUÉT...";
         myDevice = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
             optionalServices: [SERVICE_UUID]
         });
-
         myDevice.addEventListener('gattserverdisconnected', onDisconnected);
         await doConnect();
-
     } catch (err) {
-        status.innerText = "Lỗi: " + err.message;
+        status.innerText = "LỖI: " + err.message;
         status.className = "error";
     }
 }
@@ -126,9 +191,8 @@ async function startConnect() {
 async function doConnect() {
     const status = document.getElementById('status');
     const btn = document.getElementById('btn');
-
     try {
-        status.innerText = "Đang bắt tay kết nối...";
+        status.innerText = "ĐANG KẾT NỐI...";
         const server = await myDevice.gatt.connect();
         const service = await server.getPrimaryService(SERVICE_UUID);
         const char = await service.getCharacteristic(CHAR_UUID);
@@ -138,23 +202,41 @@ async function doConnect() {
             const rawData = new TextDecoder().decode(e.target.value);
             const parts = rawData.split(',');
             if (parts.length >= 2) {
-                document.getElementById('x').innerText = parts[0] + "°";
-                document.getElementById('y').innerText = parts[1] + "°";
+                const x = parseFloat(parts[0]);
+                const z = parseFloat(parts[1]);
+                updateUI(x, z);
             }
         });
 
-        status.innerText = "ĐANG HOẠT ĐỘNG";
+        status.innerText = "ONLINE";
         btn.disabled = true;
-        btn.innerText = "ĐÃ KẾT NỐI";
-
+        btn.innerText = "CONNECTED";
     } catch (e) {
-        status.innerText = "Đang thử kết nối lại...";
+        status.innerText = "THỬ LẠI...";
         setTimeout(doConnect, 2000);
     }
 }
 
+function updateUI(x, z) {
+    // Cập nhật số liệu
+    document.getElementById('x-val').innerText = x.toFixed(1) + "°";
+    document.getElementById('z-val').innerText = z.toFixed(1) + "°";
+
+    // Tính toán vị trí chấm tròn (Tâm bắn 300px, bán kính 150px)
+    // Giả sử góc tối đa để hiển thị là 90 độ (có thể chỉnh lên 180 tùy ý)
+    const limit = 90;
+    let moveX = (z / limit) * 150; // Z sang trái/phải
+    let moveY = (x / limit) * -150; // X lên/xuống (nhân -1 vì X dương là lên)
+
+    // Giới hạn không cho chấm tròn chạy ra khỏi bia
+    moveX = Math.max(-140, Math.min(140, moveX));
+    moveY = Math.max(-140, Math.min(140, moveY));
+
+    pointer.style.transform = `translate(${moveX}px, ${moveY}px)`;
+}
+
 function onDisconnected() {
-    document.getElementById('status').innerText = "Mất kết nối! Đang tự động tìm lại...";
+    document.getElementById('status').innerText = "OFFLINE - RECONNECTING...";
     document.getElementById('status').className = "error";
     doConnect();
 }
