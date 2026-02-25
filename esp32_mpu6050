@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32 MPU6050 Monitor</title>
+    <style>
+        body { font-family: Arial; text-align: center; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 15px; display: inline-block; margin-top: 50px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .value { font-size: 40px; font-weight: bold; color: #007bff; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Dữ liệu MPU6050</h2>
+        <button onclick="connectBLE()">Kết nối Bluetooth</button>
+        <div style="margin-top: 20px;">
+            <p>Góc X: <span id="valX" class="value">0</span>°</p>
+            <p>Góc Y: <span id="valY" class="value">0</span>°</p>
+        </div>
+    </div>
+
+    <script>
+        async function connectBLE() {
+            const serviceUUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+            const charUUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'ESP32_MPU6050' }],
+                    optionalServices: [serviceUUID]
+                });
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService(serviceUUID);
+                const characteristic = await service.getCharacteristic(charUUID);
+
+                await characteristic.startNotifications();
+                characteristic.addEventListener('characteristicvaluechanged', (event) => {
+                    const value = new TextDecoder().decode(event.target.value);
+                    const parts = value.split(',');
+                    document.getElementById('valX').innerText = parts[0];
+                    document.getElementById('valY').innerText = parts[1];
+                });
+                alert("Đã kết nối!");
+            } catch (error) { console.log(error); }
+        }
+    </script>
+</body>
+</html>
