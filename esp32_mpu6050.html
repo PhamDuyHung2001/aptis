@@ -2,83 +2,157 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPU6050 App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/564/564500.png">
+
+    <title>MPU6050 Pro App</title>
+    
     <style>
-        body { font-family: sans-serif; text-align: center; background: #121212; color: white; padding: 20px; }
-        .card { background: #1e1e1e; padding: 25px; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-width: 400px; margin: auto; }
-        .val { font-size: 50px; font-weight: bold; color: #00d2ff; margin: 15px 0; }
-        button { 
-            width: 100%; padding: 18px; font-size: 18px; font-weight: bold;
-            background: #28a745; color: white; border: none; border-radius: 12px;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background: #121212; 
+            color: white; 
+            margin: 0; 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
         }
-        button:disabled { background: #444; box-shadow: none; }
-        #status { margin-top: 15px; font-size: 14px; color: #aaa; }
+        .card { 
+            background: #1e1e1e; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+            max-width: 350px; 
+            width: 90%;
+            border: 1px solid #333;
+        }
+        h2 { color: #ffffff; margin-bottom: 25px; font-weight: 300; letter-spacing: 1px; }
+        .val-box { 
+            background: #252525; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 15px 0;
+            border-bottom: 3px solid #00d2ff;
+        }
+        .label { font-size: 14px; color: #888; text-transform: uppercase; }
+        .val { font-size: 48px; font-weight: bold; color: #00d2ff; margin-top: 5px; }
+        button { 
+            width: 100%; 
+            padding: 18px; 
+            font-size: 18px; 
+            font-weight: bold;
+            background: linear-gradient(45deg, #28a745, #218838);
+            color: white; 
+            border: none; 
+            border-radius: 15px;
+            cursor: pointer; 
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+        }
+        button:active { transform: scale(0.95); opacity: 0.9; }
+        button:disabled { background: #444; box-shadow: none; color: #888; }
+        #status { margin-top: 20px; font-size: 13px; color: #00e676; font-weight: bold; }
+        .error { color: #ff5252 !important; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>DỮ LIỆU CẢM BIẾN</h2>
-    <button id="btn" onclick="initBLE()">BẮT ĐẦU KẾT NỐI</button>
-    <div id="status">Chưa có kết nối</div>
+    <h2>MPU6050 MONITOR</h2>
+    
+    <button id="btn" onclick="startConnect()">KẾT NỐI BLUETOOTH</button>
+    <div id="status">Sẵn sàng kết nối</div>
 
-    <div style="margin-top: 30px;">
-        <p>GÓC NGHIÊNG X</p>
-        <div id="x" class="val">0.0°</div>
-        <p>GÓC NGHIÊNG Y</p>
-        <div id="y" class="val">0.0°</div>
+    <div style="margin-top: 20px;">
+        <div class="val-box">
+            <span class="label">Góc Nghiêng X</span>
+            <div id="x" class="val">0.0°</div>
+        </div>
+        <div class="val-box">
+            <span class="label">Góc Nghiêng Y</span>
+            <div id="y" class="val">0.0°</div>
+        </div>
     </div>
 </div>
 
 <script>
-const S_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-const C_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
-let bleDevice = null;
+const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+let myDevice = null;
 
-async function initBLE() {
+async function startConnect() {
+    const status = document.getElementById('status');
+    const btn = document.getElementById('btn');
+    
     try {
-        // acceptAllDevices giúp điện thoại luôn hiện bảng dò tìm ngay lập tức
-        bleDevice = await navigator.bluetooth.requestDevice({
+        // Kiểm tra xem trình duyệt có hỗ trợ Bluetooth không
+        if (!navigator.bluetooth) {
+            throw new Error("Trình duyệt không hỗ trợ Bluetooth. Hãy dùng Chrome trên Android hoặc Bluefy trên iPhone.");
+        }
+
+        status.innerText = "Đang quét thiết bị...";
+        status.className = "";
+
+        myDevice = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
-            optionalServices: [S_UUID]
+            optionalServices: [SERVICE_UUID]
         });
 
-        bleDevice.addEventListener('gattserverdisconnected', onDisc);
-        await connect();
+        myDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        await doConnect();
 
     } catch (err) {
-        document.getElementById('status').innerText = "Lỗi: " + err.message;
+        status.innerText = "Lỗi: " + err.message;
+        status.className = "error";
     }
 }
 
-async function connect() {
+async function doConnect() {
+    const status = document.getElementById('status');
+    const btn = document.getElementById('btn');
+
     try {
-        document.getElementById('status').innerText = "Đang kết nối...";
-        const server = await bleDevice.gatt.connect();
-        const service = await server.getPrimaryService(S_UUID);
-        const char = await service.getCharacteristic(C_UUID);
+        status.innerText = "Đang bắt tay kết nối...";
+        const server = await myDevice.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        const char = await service.getCharacteristic(CHAR_UUID);
 
         await char.startNotifications();
         char.addEventListener('characteristicvaluechanged', (e) => {
-            const data = new TextDecoder().decode(e.target.value).split(',');
-            document.getElementById('x').innerText = data[0] + "°";
-            document.getElementById('y').innerText = data[1] + "°";
+            const rawData = new TextDecoder().decode(e.target.value);
+            const parts = rawData.split(',');
+            if (parts.length >= 2) {
+                document.getElementById('x').innerText = parts[0] + "°";
+                document.getElementById('y').innerText = parts[1] + "°";
+            }
         });
 
-        document.getElementById('status').innerText = "ĐÃ KẾT NỐI THÀNH CÔNG";
-        document.getElementById('btn').disabled = true;
+        status.innerText = "ĐANG HOẠT ĐỘNG";
+        btn.disabled = true;
+        btn.innerText = "ĐÃ KẾT NỐI";
+
     } catch (e) {
-        console.log(e);
-        setTimeout(connect, 2000); // Tự động thử lại nếu lỗi
+        status.innerText = "Đang thử kết nối lại...";
+        setTimeout(doConnect, 2000);
     }
 }
 
-function onDisc() {
-    document.getElementById('status').innerText = "Mất kết nối! Đang tự tìm lại...";
-    connect();
+function onDisconnected() {
+    document.getElementById('status').innerText = "Mất kết nối! Đang tự động tìm lại...";
+    document.getElementById('status').className = "error";
+    doConnect();
 }
 </script>
+
 </body>
 </html>
