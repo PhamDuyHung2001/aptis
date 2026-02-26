@@ -35,7 +35,6 @@
             overflow: hidden;
         }
 
-        /* Header gọn gàng */
         .header {
             position: absolute;
             top: 20px;
@@ -60,10 +59,8 @@
         }
 
         #btn:disabled { background: #333; color: #777; box-shadow: none; }
-
         #status { margin-top: 8px; font-size: 11px; letter-spacing: 1px; color: var(--accent-color); }
 
-        /* Bia tập bắn */
         .target-area {
             position: relative;
             width: 300px;
@@ -77,7 +74,6 @@
             box-shadow: 0 0 50px rgba(0, 210, 255, 0.1);
         }
 
-        /* Các vòng tròn đồng tâm */
         .ring {
             position: absolute;
             border-radius: 50%;
@@ -87,11 +83,9 @@
         .ring-2 { width: 50%; height: 50%; }
         .ring-3 { width: 25%; height: 25%; border-color: rgba(0, 210, 255, 0.2); }
 
-        /* Trục chữ thập */
         .axis-h { position: absolute; width: 100%; height: 1px; background: rgba(255,255,255,0.1); }
         .axis-v { position: absolute; width: 1px; height: 100%; background: rgba(255,255,255,0.1); }
 
-        /* Chấm tròn di chuyển (Pointer) */
         #pointer {
             position: absolute;
             width: 20px;
@@ -99,7 +93,7 @@
             background: var(--primary-color);
             border-radius: 50%;
             box-shadow: 0 0 15px var(--primary-color);
-            transition: transform 0.1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            transition: transform 0.05s linear; /* Giảm thời gian để phản hồi tức thì hơn */
             z-index: 10;
         }
         #pointer::after {
@@ -118,7 +112,6 @@
             100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
         }
 
-        /* Hiển thị số liệu ở dưới */
         .data-container {
             position: absolute;
             bottom: 40px;
@@ -129,7 +122,6 @@
         .data-item { text-align: center; }
         .data-label { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 5px; }
         .data-value { font-size: 28px; font-weight: bold; color: var(--primary-color); }
-
         .error { color: #ff5252 !important; }
     </style>
 </head>
@@ -142,7 +134,7 @@
 
 <div class="target-area">
     <div class="ring ring-1"></div>
-    <div class="ring ring-2"></div>
+    <div class="ring ring-2 :border-color: var(--primary-color)"></div>
     <div class="ring ring-3"></div>
     <div class="axis-h"></div>
     <div class="axis-v"></div>
@@ -152,11 +144,11 @@
 
 <div class="data-container">
     <div class="data-item">
-        <div class="data-label">Trục X (Pitch)</div>
+        <div class="data-label">Trục X (Roll)</div>
         <div id="x-val" class="data-value">0.0°</div>
     </div>
     <div class="data-item">
-        <div class="data-label">Trục Z (Yaw)</div>
+        <div class="data-label">Trục Y (Pitch)</div>
         <div id="z-val" class="data-value">0.0°</div>
     </div>
 </div>
@@ -166,10 +158,6 @@ const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 let myDevice = null;
 const pointer = document.getElementById('pointer');
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-}
 
 async function startConnect() {
     const status = document.getElementById('status');
@@ -203,8 +191,8 @@ async function doConnect() {
             const parts = rawData.split(',');
             if (parts.length >= 2) {
                 const x = parseFloat(parts[0]);
-                const z = parseFloat(parts[1]);
-                updateUI(x, z);
+                const y = parseFloat(parts[1]);
+                updateUI(x, y);
             }
         });
 
@@ -217,20 +205,24 @@ async function doConnect() {
     }
 }
 
-function updateUI(x, z) {
-    // Cập nhật số liệu
-    document.getElementById('x-val').innerText = x.toFixed(1) + "°";
-    document.getElementById('z-val').innerText = z.toFixed(1) + "°";
+function updateUI(val1, val2) {
+    // Cập nhật số liệu hiển thị
+    document.getElementById('x-val').innerText = val1.toFixed(1) + "°";
+    document.getElementById('z-val').innerText = val2.toFixed(1) + "°";
 
-    // Tính toán vị trí chấm tròn (Tâm bắn 300px, bán kính 150px)
-    // Giả sử góc tối đa để hiển thị là 90 độ (có thể chỉnh lên 180 tùy ý)
-    const limit = 90;
-    let moveX = (z / limit) * 150; // Z sang trái/phải
-    let moveY = (x / limit) * -150; // X lên/xuống (nhân -1 vì X dương là lên)
+    // --- TĂNG ĐỘ NHẠY Ở ĐÂY ---
+    // limit = 5 nghĩa là chỉ cần nghiêng 5 độ là chấm tròn chạm rìa bia
+    const limit = 5;
 
-    // Giới hạn không cho chấm tròn chạy ra khỏi bia
-    moveX = Math.max(-140, Math.min(140, moveX));
-    moveY = Math.max(-140, Math.min(140, moveY));
+    // Tính toán tọa độ (Radius = 150px)
+    // val2 (Trục Y/Z từ ESP32) điều khiển ngang
+    // val1 (Trục X từ ESP32) điều khiển dọc
+    let moveX = (val2 / limit) * 150;
+    let moveY = (val1 / limit) * -150;
+
+    // Giới hạn để không trôi mất khỏi vùng nhìn thấy
+    moveX = Math.max(-145, Math.min(145, moveX));
+    moveY = Math.max(-145, Math.min(145, moveY));
 
     pointer.style.transform = `translate(${moveX}px, ${moveY}px)`;
 }
